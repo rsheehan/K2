@@ -1,0 +1,47 @@
+include "inc/cmdsys.plh"
+include "inc/conio.plh"
+include "inc/fbtext.plh"
+
+sysflags restxt1|resxtxt1
+
+byte[] title = " K2 Presentation "
+byte left
+byte top = 0
+byte titleHeight = 3
+byte contentHeight = 23
+byte bulletColour = ORANGE
+byte bulletChar = '['
+
+fbInit(YELLOW, BLACK, TRUE)
+
+left = fbJustifiedLeft(CENTREJ, title, TRUE)
+
+fbBox(left - 1, top, title, titleHeight, MAGENTA, BLACK)
+top++
+fbTitleArea(@title, left, top, titleHeight, WHITE, BLACK)
+top = top + titleHeight
+contentHeight = contentHeight - top - 1
+fbBox(0, top, 38, contentHeight, MAGENTA, BLACK)
+fbTrack(left, top, title, MAGENTA, BLACK)
+top++
+fbViewport(1, top, 38, contentHeight, LIGHT_BLUE, BLACK)
+
+putln
+putf("The first point.")
+putln
+putf("The *{ORANGE}second* point.")
+putln
+putf("The _third_ point.")
+putln
+putf("_The *{AQUAMARINE}fourth point*_.")
+putln
+putf("__Nothing *{magenta}and* *{purple}then _something_.")
+putln
+putf("*{WHITE}1234567890123456789012345678901234567890")
+putln
+putf("\\A\\_B\\*C_\\\\D") // in text file won't need 2 \s
+putln
+conio:getKey()
+fbOff
+
+done

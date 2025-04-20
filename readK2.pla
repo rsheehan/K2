@@ -1,0 +1,34 @@
+include "inc/cmdsys.plh"
+include "inc/fileio.plh"
+
+def readK2file(refnum)#0
+    byte[80] line
+    word size
+    puts("Reading K2 file.\n")
+    fileio:newline(refnum, $7F, $0D)
+    repeat
+        size = fileio:read(refnum, @line, 80)
+        puts("data read:"); puti(size); putln
+    until size == 0
+end
+
+def openK2file(name)#0
+    word refnum
+
+    refnum = fileio:open(name)
+    if refnum
+        readK2file(refnum)
+        fileio:close(refnum)
+    else
+        puts("Error opening \"")
+        puts(name)
+        puts("\":")
+        puti(perr)
+        putln
+    fin
+end
+
+//ToDo: get file name from command line.
+fileio:setpfx("present")
+openK2file("About.k2")
+done

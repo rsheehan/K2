@@ -1,0 +1,49 @@
+// fbtext.plh
+
+import fbtext
+	//
+	// Colours
+	//
+	const BLACK			= 0
+	const MAGENTA		= 1
+	const DARK_BLUE		= 2
+	const PURPLE		= 3
+	const DARK_GREEN	= 4
+	const GREY1			= 5
+	const MEDIUM_BLUE	= 6
+	const LIGHT_BLUE	= 7
+	const BROWN			= 8
+	const ORANGE		= 9
+	const GREY2			= 10
+	const PINK			= 11
+	const GREEN			= 12
+	const YELLOW		= 13
+	const AQUAMARINE	= 14
+	const WHITE			= 15
+    //
+    // Box types
+    //
+    const NONE      = 0
+    const LINE      = 1
+    //
+    // Justification
+    //
+    const LEFTJ     = 0
+    const CENTREJ   = 1
+    const RIGHTJ    = 2
+	//
+	// API
+	//
+	predef fbInit(fg, bg, apple)#0
+    predef fbOff#0
+    predef fbPutc(c, fg, bg)#0
+    predef fbPuts(text, fg, bg)#0
+	predef fbViewport(left, top, width, height, fg, bg)#0
+    predef fbJustifiedLeft(just, width, box)#1
+    predef fbBox(left, top, width, height, fg, bg)#0
+    predef fbTitleArea(title, left, top, height, fg,  bg)#0
+    predef fbTrack(left, top, width, fg, bg)#0
+    predef mouseTextOn#0, mouseTextOff#0
+    predef putf(string)#0
+    predef setBulletFormat(ch, colour)#0
+end

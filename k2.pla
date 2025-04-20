@@ -1,0 +1,9 @@
+include "inc/cmdsys.plh"
+include "inc/conio.plh"
+include "inc/fbtext.plh"
+
+sysflags restxt1|resxtxt1
+
+
+
+done

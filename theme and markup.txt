@@ -1,0 +1,137 @@
+A simple markup language.
+
+Have a default theme.
+
+The display area is 38x22 characters, except for verbatim screens.
+This means that a line box can be drawn around the contents.
+Then inside boxes, the normal display area is 36x(height - 2)
+
+Theme colours for the whole presentation.
+Theme: 
+Values for the whole presentation start with "#"
+#F/B: foreground/background ; this is for the whole slide
+
+#TITLEBOX: characteristics including type, justification, colours
+
+Colours
+foreground/background
+
+Slide: foreground background
+Slide colours override this.
+Viewport colours override this.
+Text colours override this.
+
+Types of boxes
+None - just the interior Viewport
+Line - mousetext outline, this takes up 2 extra lines (height)
+and 2 extra characters (width) than the viewport
+Solid - a filled character around the perimeter?
+Solid/Line - both
+
+Justifications
+left, centre, right
+
+Spacing
+Normally have blank lines between lines of text.
+This makes underscores possible.
+
+Slide buildup
+#BUILD
+all - All at once
+point - One by one
+
+# Start of new slide followed by slide theme
+
+	//
+	// Colours
+	//
+	const BLACK			= 0
+	const MAGENTA		= 1
+	const DARK_BLUE		= 2
+	const PURPLE		= 3
+	const DARK_GREEN	= 4
+	const GREY1			= 5
+	const MEDIUM_BLUE	= 6
+	const LIGHT_BLUE	= 7
+	const BROWN			= 8
+	const ORANGE		= 9
+	const GREY2			= 10
+	const PINK			= 11
+	const GREEN			= 12
+	const YELLOW		= 13
+	const AQUAMARINE	= 14
+	const WHITE			= 15
+
+_Underline_
+The characters are underlined by mousetext L.
+Need a "blank" line for underline of characters above.
+
+Foreground colours
+#COLOUR words in colour #
+e.g. "The word #MAGENTAred# is magenta."
+
+123455678901234556789012345567890123456 - maximum characters in a box
+> Blockquotes for a paragraph are done 
+> like this. They carry on without a 
+> blank row.
+
+A line
+*------------------
+is the mark of a new slide.
+In practice, use at least 3 '-'.
+
+Unordered lists
+- one
+- two
+-- one
+-- two
+- three
+
+or
+. one
+. two
+.. one
+.. two
+. three
+The '.'s get replaced by one mtxt '['.
+
+# Type:line Just:centred
+Box around text
+#
+
+The box characters are
+    top char '_'
+    bottom char mtxt 'L'
+    left char mtxt 'Z'
+    right char mtxt '_'
+
+Turn ... into mtxt 'I'
+
+
+\__to escape command characters
+
+How to indicate a new slide?
+
+Need to indicate verbatim mode.
+
+==== Title (optional title)
+
+Tab setting for indentation of levels
+=|==|==|==|=========================
+  
+*-------------
+
+Do I add extra spaces around text in titles and content boxes?
+pro:
+It looks neater, also it is possible most slides will want this,
+therefore making the description text shorter. The extra spaces
+do not need to be included.
+con:
+Less flexibility. If you don't want the extra spaces you are stuck.
+
+* Could offer a parameter to choose. *
+
+Is there a need for a different title box and content box?
+Actually the boxes are the same, the difference is how the content
+in both types of box are displayed.
+see: fbTitleArea and fbViewport

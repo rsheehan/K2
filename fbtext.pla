@@ -1,0 +1,420 @@
+include "inc/cmdsys.plh"
+include "inc/conio.plh"
+include "inc/fbtext.plh" // so we have access to the constants
+
+const AN3OFF		= $C05E // R/W
+const AN3ON			= $C05F // R/W
+const TEXTOFF		= $C050 // R/W
+const TEXTON		= $C051 // R/W
+const COL80ON		= $C00D // W
+const COL80OFF		= $C00C // W
+const ST80ON		= $C001 // W
+const ST80OFF		= $C000 // W
+const COLOURSTORE	= $C055 // R/W PAGE2 On - actually 1x if 80Store on
+const TEXTSTORE		= $C054 // R/W PAGE1
+
+const WNDLFT    = $20
+const WNDWIDTH  = $21
+const WNDTOP    = $22
+const CURSH		= $24 // N.B. horizontal cursor relative to viewport
+const CURSV		= $25 // vertical cursor relative to screen
+
+const LASTCHAR  = $07F7 // screen address of bottom,right char
+
+word txt1scrn[]	= $0400,$0480,$0500,$0580,$0600,$0680,$0700,$0780
+word			= $0428,$04A8,$0528,$05A8,$0628,$06A8,$0728,$07A8
+word			= $0450,$04D0,$0550,$05D0,$0650,$06D0,$0750,$07D0
+
+byte[] colours  = "BLACK"
+byte            = "MAGENTA"
+byte            = "DARK_BLUE"
+byte            = "PURPLE"
+byte            = "DARK_GREEN"
+byte            = "GREY1"
+byte            = "MEDIUM_BLUE"
+byte            = "LIGHT_BLUE"
+byte            = "BROWN"
+byte            = "ORANGE"
+byte            = "GREY2"
+byte            = "PINK"
+byte            = "GREEN"
+byte            = "YELLOW"
+byte            = "AQUAMARINE"
+byte            = "WHITE"
+
+byte bulletColour = ORANGE
+byte bulletChar = '[' // the diamond
+
+def extendedVideoOn#0
+    call($C300, $A0, 0, 0, 0)
+    putc($11)
+end
+
+def extendedVideoOff#0
+    putc($15)
+end
+
+// Only works with extended video on.
+export def mouseTextOn#0
+    putc($0F)
+    putc($1B)
+end
+
+export def mouseTextOff#0
+    putc($18)
+    putc($0E)
+end
+
+def fullscreen#0
+    conio:viewport(0, 0, 40, 24)
+end
+
+// Create a viewport with specified colours.
+// Doesn't clear the viewport. Goes to top,left.
+export def fbViewport(left, top, width, height, fg, bg)#0
+	word x, y
+    word first, last, right
+    byte colourByte
+    word colourWord
+
+    colourByte = fg << 4 | bg
+	conio:viewport(left, top, width, height)
+    colourWord = colourByte << 8 | colourByte
+    if left % 2
+        first = left
+    else
+        first = 0
+    fin
+    if (left + width) % 2
+        last = left + width - 1
+    else
+        last = 0
+    fin
+    right = left + width - 1
+    left = (left + 1) / 2
+    right = (right - 1) / 2
+	^COLOURSTORE
+	for y = top to top + height - 1
+        if first
+            txt1scrn.[y, first] = colourByte
+        fin
+		for x = left to right
+			txt1scrn:[y, x] = colourWord
+		next
+        if last
+            txt1scrn.[y, last] = colourByte
+        fin
+	next
+	^TEXTSTORE
+end
+
+def showSubtleApple(bg)#0
+    ^COLOURSTORE
+    ^LASTCHAR = GREY1 << 4 | bg
+    ^TEXTSTORE
+    ^LASTCHAR = 'A' // open-apple
+end
+
+// Initialise foreground/background text.
+// Clears the whole screen.
+// Optionally shows open-apple.
+export def fbInit(fg, bg, apple)#0
+    extendedVideoOn
+	^AN3OFF
+	^TEXTON
+	^COL80OFF = $00
+	^ST80ON = $00
+	// fill in display with starting colours
+    fbViewport(0, 0, 40, 24, fg, bg)
+	conio:clear(cls)
+    if apple
+        showSubtleApple(bg)
+    fin
+end
+
+// Turn off foreground/background text.
+// Clears screen.
+// Currently doesn't turn off extended video.
+export def fbOff#0
+	^ST80OFF = $00
+	^AN3ON
+    fullscreen
+	conio:clear(cls)
+    //extendedVideoOff
+end
+
+// Print a caracter in the given foreground/background colour.
+export def fbPutc(c, fg, bg)#0
+	word x, y
+	byte colourByte // FFFF BBBB foreground background colours
+	colourByte = fg << 4 | bg
+
+	// first store the colour information
+	x = ^WNDLFT + ^CURSH
+	y = ^CURSV
+	^COLOURSTORE
+	txt1scrn.[y, x] = colourByte
+    ^TEXTSTORE
+    putc(c)
+end
+
+// Print a string in the given foreground/background colour.
+// Colours don't scroll if it gets to the end of the screen.
+export def fbPuts(str, fg, bg)#0
+	word x, y
+	word length
+	byte colourByte // FFFF BBBB foreground background colours
+	colourByte = fg << 4 | bg
+
+	// first store the colour information
+	length = ^str
+	x = ^WNDLFT + ^CURSH
+	y = ^CURSV
+	^COLOURSTORE
+	while length > 0
+		txt1scrn.[y, x] = colourByte
+		x++
+		if x > 39
+			x = 0
+			y++
+		fin
+		length--
+	loop
+	// then print the string
+	^TEXTSTORE
+	puts(str)
+end
+
+// Draw a box outline.
+// Dimensions are screen dimensions of the outline.
+// Take into account top and height <= 22
+export def fbBox(left, top, width, height, fg, bg)#0
+    byte x, y
+
+    fullscreen
+    conio:gotoxy(left + 1, top)
+    for x = 1 to width
+        fbPutc('_', fg, bg)
+    next
+    mouseTextOn
+    for y = 1 to height
+        conio:gotoxy(left, top + y)
+        fbPutc('Z', fg, bg)
+        conio:gotoxy(left + width + 1, top + y)
+        fbPutc('_', fg, bg)
+    next
+    conio:gotoxy(left + 1, top + height + 1)
+    for x = 1 to width
+        fbPutc('L', fg, bg)
+    next
+    mouseTextOff
+end
+
+// Remember that a box around the text will
+// take up one extra space on each side.
+// just: the type of justification
+// width: the width of the text
+// box: whether the text will be enclosed by a box
+export def fbJustifiedLeft(just, width, box)#1
+    byte left
+
+    when just
+        is LEFTJ
+            left = box ?? 1 :: 0
+            break
+        is CENTREJ
+            left = (40 - width) / 2
+            break
+        is RIGHTJ
+            left = box ?? 39 - width :: 40 - width
+    wend
+    return left
+end
+
+// Draws a coloured area around a string/title.
+// To enable title areas to stand out on monocrome screens
+// they are inverted. This means that fg and bg are backwards.
+// Height is expected to be an odd number.
+export def fbTitleArea(title, left, top, height, fg,  bg)#0
+    byte x, y
+    byte width
+    
+    fbViewport(left, top, ^title, height, bg, fg)
+    putc($0F) // inverse
+    conio:clear(cls)
+    conio:gotoxy(0, height / 2)
+    // Poke the last character in, to prevent scrolling
+    x = ^WNDLFT + ^title - 1
+    y = ^CURSV
+    txt1scrn.[y, x] = ^(title + ^title) // inverted char
+    ^title-- // don't print last char
+    puts(title)
+    ^title++ // restore title length
+    putc($0E)
+end
+
+// Draws a horizontal line of upper and lower edges
+// to enable boxes to be separated by only one line.
+export def fbTrack(left, top, width, fg, bg)#0
+    byte x
+    fullscreen
+    conio:gotoxy(left, top)
+    mouseTextOn
+    for x = 1 to width
+        fbPutc('\\', fg, bg)
+    next
+    mouseTextOff
+end
+
+// Checks next bytes to see if they are a colour.
+// Returns colour value (or -1) and pos pointer.
+// pos pointer unchanged if no colour match.
+def colourValue(pos)#2
+    byte colour
+    word colourPos
+    word wordPos
+    byte c
+    byte length
+    byte found
+    word i
+
+    if ^pos <> '{'
+        return 16, 0 // no colour, no jump
+    fin
+    found = 0
+    colourPos = @colours
+    for colour = 0 to 15
+        wordPos = pos + 1 // back to the start
+        length = ^colourPos
+        for i = 1 to length
+            colourPos++
+            c = ^wordPos
+            if c >= 'a' and c <= 'z'
+                c = c - $20
+            fin
+            if c <> ^colourPos
+                colourPos = colourPos + (length - i)
+                break
+            fin
+            wordPos++
+        next
+        if i == length + 1
+            break // found the colour 0 to 15
+        fin
+        colourPos++
+    next
+    if ^(pos + 1 + length) <> '}'
+        return 16, 0 // no colour, no jump
+    fin
+    return colour, length + 2
+end
+
+// Prints the character in the specified foreground colour.
+// The background stays as it was.
+def putcFg(c, fg)#0
+	byte x, y
+    byte extract
+	x = ^WNDLFT + ^CURSH
+	y = ^CURSV
+	^COLOURSTORE
+	extract = txt1scrn.[y, x]
+    txt1scrn.[y, x] = fg << 4 | (extract & $0F)
+    ^TEXTSTORE
+    putc(c)
+end
+
+def putFormattedCharacter(c, x, y, colour, under)#0
+    if colour < 16
+        putcFg(c, colour)
+    else
+        putc(c)
+    fin
+    if under
+        conio:gotoxy(x, y + 1)
+        mouseTextOn
+        putc('L')
+        mouseTextOff
+        conio:gotoxy(x + 1, y)
+    fin
+    x++
+end
+
+def ellipsis(pos)#1
+    return ^pos == '.' and ^(pos + 1) == '.'
+end
+
+// Prints a string like puts but taking formatting into account.
+// Because of underlines, this takes up two lines for every line.
+export def putf(string)#0
+    byte x, y
+    byte i, c
+    byte jump
+    byte under
+    byte colour
+
+    puts(" ") // always indented
+
+	x = ^CURSH
+	y = ^CURSV - ^WNDTOP
+
+    under = FALSE
+    colour = 16 // if < 16 this is an override colour
+
+    i = 1
+    while i <= ^string and ^CURSH < ^WNDWIDTH - 1 // chops off at edge
+        c = ^(string + i)
+        when c
+            is '\\'
+                i++
+                if i <= ^string
+                    c = ^(string + i)
+                    putFormattedCharacter(c, x, y, colour, under)
+                    x++
+                fin
+                break
+            is '.'
+                if ellipsis(string + i + 1)
+                    mouseTextOn
+                    putFormattedCharacter('I', x, y, colour, under)
+                    mouseTextOff
+                    i = i + 2
+                    x++
+                else
+                    putFormattedCharacter('.', x, y, colour, under)
+                    x++
+                fin
+                break
+            is '+'
+                mouseTextOn
+                putFormattedCharacter(bulletChar, x, y, bulletColour, under)
+                mouseTextOff
+                x++
+                break
+            is '_'
+                under = not under
+                break
+            is '*'
+                if colour < 16
+                    colour = 16 // foreground colour off
+                else
+                    colour, jump = colourValue(string + i + 1)
+                    if colour < 16
+                        i = i + jump
+                    fin
+                fin
+                break
+            otherwise
+                putFormattedCharacter(c, x, y, colour, under)
+                x++
+        wend
+        i++
+    loop
+    putln
+end
+
+export def setBulletFormat(ch, colour)#0
+    bulletChar = ch
+    bulletColour = colour
+end
+
+done

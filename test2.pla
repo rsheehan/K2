@@ -1,0 +1,30 @@
+include "inc/cmdsys.plh"
+include "inc/conio.plh"
+include "inc/fbtext.plh"
+
+sysflags restxt1|resxtxt1
+
+byte[] title = "K2 Presentation"
+byte left
+byte top = 0
+byte titleHeight = 1
+byte contentHeight = 23
+
+fbInit(YELLOW, BLACK, true)
+
+left = fbJustifiedLeft(LEFTJ, title, FALSE)
+fbTitleArea(@title, left, top, titleHeight, BLACK, GREY1)
+top++
+contentHeight = contentHeight - top - 1
+fbBox(0, top, 38, contentHeight, WHITE, BLACK)
+// fbTrack(left, 4, title + 2, MAGENTA, BLACK)
+top++
+fbViewport(1, top, 38, contentHeight, LIGHT_BLUE, DARK_BLUE)
+puts("top/left hand corner")
+conio:gotoxy(0, contentHeight - 1)
+puts("bottom/left hand corner")
+
+conio:getKey()
+fbOff
+
+done
