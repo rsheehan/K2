@@ -12,34 +12,34 @@ byte contentHeight = 23
 byte bulletColour = ORANGE
 byte bulletChar = '['
 
-fbInit(YELLOW, BLACK, TRUE)
+fbInit(MAGENTA, BLACK, TRUE, TRUE)
 
-left = fbJustifiedLeft(CENTREJ, title, TRUE)
+left = justifiedStart(CENTREJ, title, TRUE)
 
-fbBox(left - 1, top, title, titleHeight, MAGENTA, BLACK)
+fbBox(left - 1, top, title, titleHeight)
 top++
 fbTitleArea(@title, left, top, titleHeight, WHITE, BLACK)
 top = top + titleHeight
 contentHeight = contentHeight - top - 1
-fbBox(0, top, 38, contentHeight, MAGENTA, BLACK)
-fbTrack(left, top, title, MAGENTA, BLACK)
+fbBox(0, top, 38, contentHeight)
+fbTrack(left, top, title)
 top++
 fbViewport(1, top, 38, contentHeight, LIGHT_BLUE, BLACK)
 
 putln
-putf("The first point.")
+fbPutf("The first point.\n")
 putln
-putf("The *{ORANGE}second* point.")
+fbPutf("The *{ORANGE}second* point.\n")
 putln
-putf("The _third_ point.")
+fbPutf("The _third_ point.\n")
 putln
-putf("_The *{AQUAMARINE}fourth point*_.")
+fbPutf("_The *{AQUAMARINE}fourth point*_.\n")
 putln
-putf("__Nothing *{magenta}and* *{purple}then _something_.")
+fbPutf("__Nothing *{magenta}and* *{purple}then _something_.\n")
 putln
-putf("*{WHITE}1234567890123456789012345678901234567890")
+fbPutf("*{WHITE}1234567890123456789012345678901234567890\n")
 putln
-putf("\\A\\_B\\*C_\\\\D") // in text file won't need 2 \s
+fbPutf("\\A\\_B\\*C_\\\\D\n") // in text file won't need 2 \s
 putln
 conio:getKey()
 fbOff

@@ -19,7 +19,8 @@ const WNDTOP    = $22
 const CURSH		= $24 // N.B. horizontal cursor relative to viewport
 const CURSV		= $25 // vertical cursor relative to screen
 
-const LASTCHAR  = $07F7 // screen address of bottom,right char
+const BOT_LEFT  = $07D0 // screen address of bottom,left char
+const BOT_RIGHT = $07F7 // screen address of bottom,right char
 
 word txt1scrn[]	= $0400,$0480,$0500,$0580,$0600,$0680,$0700,$0780
 word			= $0428,$04A8,$0528,$05A8,$0628,$06A8,$0728,$07A8
@@ -108,17 +109,23 @@ export def fbViewport(left, top, width, height, fg, bg)#0
 	^TEXTSTORE
 end
 
-def showSubtleApple(bg)#0
+def pokeChar(ch, pos, bg)#0
+    byte colour
+
+    colour = GREY1
+    if bg == GREY1
+        colour = GREY2
+    fin
     ^COLOURSTORE
-    ^LASTCHAR = GREY1 << 4 | bg
+    ^pos = colour << 4 | bg
     ^TEXTSTORE
-    ^LASTCHAR = 'A' // open-apple
+    ^pos = ch
 end
 
 // Initialise foreground/background text.
 // Clears the whole screen.
-// Optionally shows open-apple.
-export def fbInit(fg, bg, apple)#0
+// Optionally shows arrows to move forward/back.
+export def fbInit(fg, bg, leftArrow, rightArrow)#0
     extendedVideoOn
 	^AN3OFF
 	^TEXTON
@@ -127,8 +134,11 @@ export def fbInit(fg, bg, apple)#0
 	// fill in display with starting colours
     fbViewport(0, 0, 40, 24, fg, bg)
 	conio:clear(cls)
-    if apple
-        showSubtleApple(bg)
+    if leftArrow
+        pokeChar('H', BOT_LEFT, bg) // left arrow
+    fin
+    if rightArrow
+        pokeChar('U', BOT_RIGHT, bg) // right arrow
     fin
 end
 
@@ -140,16 +150,15 @@ export def fbOff#0
 	^AN3ON
     fullscreen
 	conio:clear(cls)
-    //extendedVideoOff
+    //extendedVideoOff - if not executed stays extended
 end
 
 // Print a caracter in the given foreground/background colour.
 export def fbPutc(c, fg, bg)#0
 	word x, y
 	byte colourByte // FFFF BBBB foreground background colours
-	colourByte = fg << 4 | bg
 
-	// first store the colour information
+	colourByte = fg << 4 | bg
 	x = ^WNDLFT + ^CURSH
 	y = ^CURSV
 	^COLOURSTORE
@@ -164,9 +173,9 @@ export def fbPuts(str, fg, bg)#0
 	word x, y
 	word length
 	byte colourByte // FFFF BBBB foreground background colours
-	colourByte = fg << 4 | bg
 
 	// first store the colour information
+	colourByte = fg << 4 | bg
 	length = ^str
 	x = ^WNDLFT + ^CURSH
 	y = ^CURSV
@@ -188,34 +197,38 @@ end
 // Draw a box outline.
 // Dimensions are screen dimensions of the outline.
 // Take into account top and height <= 22
-export def fbBox(left, top, width, height, fg, bg)#0
+export def fbBox(left, top, width, height)#0
     byte x, y
 
     fullscreen
     conio:gotoxy(left + 1, top)
     for x = 1 to width
-        fbPutc('_', fg, bg)
+        putc('_')
     next
     mouseTextOn
     for y = 1 to height
         conio:gotoxy(left, top + y)
-        fbPutc('Z', fg, bg)
+        putc('Z')
         conio:gotoxy(left + width + 1, top + y)
-        fbPutc('_', fg, bg)
+        putc('_')
     next
     conio:gotoxy(left + 1, top + height + 1)
     for x = 1 to width
-        fbPutc('L', fg, bg)
+        putc('L')
     next
     mouseTextOff
 end
 
+// Returns the left position where a justified text
+// area of width will start.
+// Takes into account whether there is a surrounding
+// box.
 // Remember that a box around the text will
 // take up one extra space on each side.
 // just: the type of justification
 // width: the width of the text
 // box: whether the text will be enclosed by a box
-export def fbJustifiedLeft(just, width, box)#1
+export def justifiedStart(just, width, box)#1
     byte left
 
     when just
@@ -231,37 +244,16 @@ export def fbJustifiedLeft(just, width, box)#1
     return left
 end
 
-// Draws a coloured area around a string/title.
-// To enable title areas to stand out on monocrome screens
-// they are inverted. This means that fg and bg are backwards.
-// Height is expected to be an odd number.
-export def fbTitleArea(title, left, top, height, fg,  bg)#0
-    byte x, y
-    byte width
-    
-    fbViewport(left, top, ^title, height, bg, fg)
-    putc($0F) // inverse
-    conio:clear(cls)
-    conio:gotoxy(0, height / 2)
-    // Poke the last character in, to prevent scrolling
-    x = ^WNDLFT + ^title - 1
-    y = ^CURSV
-    txt1scrn.[y, x] = ^(title + ^title) // inverted char
-    ^title-- // don't print last char
-    puts(title)
-    ^title++ // restore title length
-    putc($0E)
-end
-
 // Draws a horizontal line of upper and lower edges
 // to enable boxes to be separated by only one line.
-export def fbTrack(left, top, width, fg, bg)#0
+export def fbTrack(left, top, width)#0
     byte x
+
     fullscreen
     conio:gotoxy(left, top)
     mouseTextOn
     for x = 1 to width
-        fbPutc('\\', fg, bg)
+        putc('\\')
     next
     mouseTextOff
 end
@@ -309,11 +301,58 @@ def colourValue(pos)#2
     return colour, length + 2
 end
 
+def ellipsis(pos)#1
+    return ^pos == '.' and ^(pos + 1) == '.'
+end
+
+export def fbFormattedLength(string)#1
+    byte length, c
+    byte i
+    byte colour, jump
+
+    colour = 16 // if < 16 this is an override colour
+    length = 0
+    i = 1
+    while i <= ^string
+        c = ^(string + i)
+        when c
+            is '\\'
+                i++ // jump over next char
+                length++ // counting next char
+            is '_'
+                break
+            is '.'
+                if ellipsis(string + i + 1)
+                    i = i + 2
+                fin
+                length++
+                break
+            is '*'
+                if colour < 16
+                    colour = 16 // foreground colour off
+                else
+                    colour, jump = colourValue(string + i + 1)
+                    if colour < 16
+                        i = i + jump
+                    else
+                        length++
+                    fin
+                fin
+                break
+            otherwise
+                length++
+        wend
+        i++
+    loop
+    return length
+end
+
 // Prints the character in the specified foreground colour.
 // The background stays as it was.
 def putcFg(c, fg)#0
 	byte x, y
     byte extract
+
 	x = ^WNDLFT + ^CURSH
 	y = ^CURSV
 	^COLOURSTORE
@@ -336,16 +375,15 @@ def putFormattedCharacter(c, x, y, colour, under)#0
         mouseTextOff
         conio:gotoxy(x + 1, y)
     fin
-    x++
 end
 
-def ellipsis(pos)#1
-    return ^pos == '.' and ^(pos + 1) == '.'
+export def fbBullet(c, colour)#0
+    bulletChar = c
+    bulletColour = colour
 end
 
-// Prints a string like puts but taking formatting into account.
-// Because of underlines, this takes up two lines for every line.
-export def putf(string)#0
+// Prints a string taking formatting into account.
+export def fbPutf(string)#0
     byte x, y
     byte i, c
     byte jump
@@ -361,7 +399,7 @@ export def putf(string)#0
     colour = 16 // if < 16 this is an override colour
 
     i = 1
-    while i <= ^string and ^CURSH < ^WNDWIDTH - 1 // chops off at edge
+    while i <= ^string // and ^CURSH < ^WNDWIDTH - 1 // chops off at edge
         c = ^(string + i)
         when c
             is '\\'
@@ -378,11 +416,10 @@ export def putf(string)#0
                     putFormattedCharacter('I', x, y, colour, under)
                     mouseTextOff
                     i = i + 2
-                    x++
                 else
                     putFormattedCharacter('.', x, y, colour, under)
-                    x++
                 fin
+                x++
                 break
             is '+'
                 mouseTextOn
@@ -400,6 +437,8 @@ export def putf(string)#0
                     colour, jump = colourValue(string + i + 1)
                     if colour < 16
                         i = i + jump
+                    else
+                        x++
                     fin
                 fin
                 break
@@ -409,7 +448,33 @@ export def putf(string)#0
         wend
         i++
     loop
-    putln
+end
+
+// Draws a coloured area around a string/title.
+// To enable title areas to stand out on monocrome screens
+// they are inverted. This means that fg and bg are backwards.
+// Height is expected to be an odd number.
+// Title text cannot use formatting
+export def fbTitleArea(title, left, top, height, fg,  bg)#0
+    byte x, y
+    
+    // todo: work out title length now that formatting info is included
+    fbViewport(left, top, ^title, height, bg, fg)
+    putc($0F) // inverse
+    conio:clear(cls)
+    conio:gotoxy(0, height / 2)
+    if height == 1
+        ^title-- // don't print last char
+        puts(title)
+        ^title++ // restore title length
+        // Poke the last character in, to prevent scrolling
+        x = ^WNDLFT + ^title - 1
+        y = ^CURSV
+        txt1scrn.[y, x] = ^(title + ^title) // inverted char
+    else
+        puts(title)
+    fin
+    putc($0E)
 end
 
 export def setBulletFormat(ch, colour)#0

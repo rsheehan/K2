@@ -31,14 +31,20 @@ Solid/Line - both
 Justifications
 left, centre, right
 
-Spacing
-Normally have blank lines between lines of text.
-This makes underscores possible.
-
 Slide buildup
 #BUILD
 all - All at once
 point - One by one
+
+Bullet characters
+diamond ([)
+cross (])
+openApple (A)
+closedApple (@)
+checkmark (D)
+ellipsis (I)
+hyphen (S)
+arrow (U)
 
 # Start of new slide followed by slide theme
 
@@ -131,7 +137,7 @@ Less flexibility. If you don't want the extra spaces you are stuck.
 
 * Could offer a parameter to choose. *
 
-Is there a need for a different title box and content box?
-Actually the boxes are the same, the difference is how the content
-in both types of box are displayed.
-see: fbTitleArea and fbViewport
+
+-----------------
+Changed so that all boxes and tracks use the screen fg/bg colours.
+So the routines just call putc.

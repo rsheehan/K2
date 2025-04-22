@@ -1,26 +1,31 @@
-#SLIDE: yellow/black, =|==|==|==|, 
-#INDENT: =|==|==|==| ; 4 levels of indentation seems enough
-#TITLEBOX: line, centre, white/black
+#SLIDE: magenta/dark_blue
+#TITLEBOX: line, left, white/black
+#CONTENTBOX: 
 #BUILD: all
+#BULLET: diamond, orange
 
 123456789012345678901234567890123456
+#SLIDE:
 #TITLEBOX: line, centre, white/black
-#
-#        K2 Limitations 
-#
+#CONTENTBOX: 
+#-----------------------------------
 
-+#36---------------------------------
-+ If only one line between the title
-  box and the content box...
+ K2 Limitations 
 
-  + ...both box outline colours must
-    be the same (as here)
+#-----------------------------------
++ The box colours are determined by
+  the initial foreground and
+  background colours...
 
-+ Underlines are only allowed in the
-  last line of _multi-line_ points
+  + so the title and content box
+    outlines are the same (as here)
+
++ Underlines are only allowed if the
+  following line is _empty_ at that
+  location
 
 + Underlines are in the colour of
   the content foreground even if the
-  underlined text is a different
+  underlined text is a _different_
   colour
 

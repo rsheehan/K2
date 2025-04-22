@@ -7,38 +7,42 @@ sysflags restxt1|resxtxt1
 byte[] title = " K2 Limitations "
 byte left
 byte top = 0
-byte titleHeight = 3
+byte titleHeight = 1
+byte titleLength
 byte contentHeight = 23
 
-fbInit(YELLOW, DARK_BLUE, TRUE)
+fbInit(MAGENTA, DARK_BLUE, FALSE, TRUE)
+titleLength = fbFormattedLength(@title)
+left = justifiedStart(LEFTJ, titleLength, TRUE)
+// only need to use fbFormattedLength if formatting used in the title
 
-left = fbJustifiedLeft(CENTREJ, title, TRUE)
-
-fbBox(left - 1, top, title, titleHeight, MAGENTA, DARK_BLUE)
+fbBox(left - 1, top, titleLength, titleHeight)
 top++
 fbTitleArea(@title, left, top, titleHeight, WHITE, BLACK)
 top = top + titleHeight
 contentHeight = contentHeight - top - 1
-fbBox(0, top, 38, contentHeight, MAGENTA, DARK_BLUE)
-fbTrack(left, top, title, MAGENTA, DARK_BLUE)
+fbBox(0, top, 38, contentHeight)
+fbTrack(left, top, titleLength)
 top++
 fbViewport(1, top, 38, contentHeight, WHITE, BLACK)
 
+fbBullet('[', ORANGE)
 putln
-putf("+ If only one line between the title")
-putf("  box and the content box...")
+fbPutf("+ The box colours are determined by\n")
+fbPutf("  the initial foreground and\n")
+fbPutf("  background colours...\n")
 putln
-
-putf("  + ...both box outline colours must")
-putf("    be the same *{GREY2}(as here)")
+fbPutf("  + so the title and content box\n")
+fbPutf("    outlines are the same *{GREY2}(as here)\n")
 putln
-putf("+ Underlines are only allowed in the")
-putf("  last line of _multi-line_ points")
+fbPutf("+ *{GREEN}Underlines* are only allowed if the\n")
+fbPutf("  following line is _empty_ at that\n")
+fbPutf("  location\n")
 putln
-putf("+ Underlines are in the colour of")
-putf("  the content foreground even if the")
-putf("  underlined text is a _*{YELLOW}different_")
-putf("  colour")
+fbPutf("+ Underlines are in the colour of\n")
+fbPutf("  the content foreground even if the\n")
+fbPutf("  underlined text is a _*{YELLOW}different_\n")
+fbPutf("  colour\n")
 
 conio:getKey()
 fbOff

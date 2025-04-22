@@ -4,20 +4,18 @@ include "inc/fbtext.plh"
 
 sysflags restxt1|resxtxt1
 
-byte[] title = "K2 Presentation"
+byte[] title = " K2 Presentation "
 byte left
 byte top = 0
-byte titleHeight = 1
+byte titleHeight = 3
 byte contentHeight = 23
 
-fbInit(YELLOW, BLACK, true)
-
-left = fbJustifiedLeft(LEFTJ, title, FALSE)
+fbInit(WHITE, BLACK, FALSE, FALSE)
+left = justifiedStart(RIGHTJ, title, FALSE)
 fbTitleArea(@title, left, top, titleHeight, BLACK, GREY1)
-top++
+top = top + titleHeight
 contentHeight = contentHeight - top - 1
-fbBox(0, top, 38, contentHeight, WHITE, BLACK)
-// fbTrack(left, 4, title + 2, MAGENTA, BLACK)
+fbBox(0, top, 38, contentHeight)
 top++
 fbViewport(1, top, 38, contentHeight, LIGHT_BLUE, DARK_BLUE)
 puts("top/left hand corner")
