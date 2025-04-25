@@ -1,15 +1,246 @@
 include "inc/cmdsys.plh"
 include "inc/fileio.plh"
+include "inc/fbtext.plh"
+
+import util
+    predef byteCmp(data, upper, size)#1
+end
+
+predef slide(linePos)#0
+predef titleBox(linePos)#0
+predef contentBox(linePos)#0
+predef build(linePos)#0
+predef bullet(linePos)#0
+
+const NUM_COMS      = 5
+const NUM_COLOURS   = 16
+const NUM_BOXTYPE   = 2
+const NUM_BUILD     = 2
+const NUM_JUST      = 3
+const NUM_BULLET    = 8
+
+byte[] commandText  = "SLIDE"
+byte                = "TITLEBOX"
+byte                = "CONTENTBOX"
+byte                = "BUILD"
+byte                = "BULLET"
+
+byte[] boxType  = "LINE"
+byte            = "NONE"
+
+byte[] buildup  = "ALL"
+byte            = "POINT"
+
+byte[] justification    = "LEFT"
+byte                    = "CENTRE"
+byte                    = "RIGHT"
+
+byte[] bulletNames  = "DIAMOND"
+byte                = "CROSS"
+byte                = "OPENAPPLE"
+byte                = "CLOSEDAPPLE"
+byte                = "CHECKMARK"
+byte                = "ELLIPSIS"
+byte                = "HYPHEN"
+byte                = "ARROW"
+
+byte[] bulletChars = '[', ']', 'A', '@', 'D', 'I', 'S', 'U'
+
+word k2commands[] = @slide, @titleBox, @contentBox, @build, @bullet
+
+// move over characters which should be ignored
+def ignore(linePos, ignored)#1 // ignored is a string of chars
+    byte i
+
+    repeat
+        for i = 1 to ^ignored
+            if ^linePos == ^(ignored + i) // found an ignored char
+                linePos++
+                break
+            fin
+        next 
+    until i > ^ignored
+    return linePos
+end
+
+def optionHere(linePos, optionPos, numOptions)#2 // return option number and new position
+    byte length
+    byte option
+
+    for option = 0 to numOptions - 1
+        length = ^optionPos
+        optionPos++
+        if byteCmp(linePos, optionPos, length)
+            break
+        fin
+        optionPos = optionPos + length
+        length = 0 // return linePos as was if not found
+    next
+    return option, linePos + length
+end
+
+// Get any foreground/background colours.
+def getFgBg(linePos)#3
+    byte fgColour
+    byte bgColour
+
+    fgColour, linePos = optionHere(linePos, @colours, NUM_COLOURS)
+    if ^linePos == '/'
+        linePos++
+    fin
+    bgColour, linePos = optionHere(linePos, @colours, NUM_COLOURS)
+    return fgColour, bgColour, linePos
+end
+
+// Get any box outline type.
+def getLineFG(linePos)#4
+    byte outline
+    byte fgColour
+    byte bgColour
+
+    outline, linePos = optionHere(linePos, @boxType, NUM_BOXTYPE)
+    linePos = ignore(linePos, ", ")
+    fgColour, bgColour = getFgBg(linePos)
+    return outline, fgColour, bgColour, linePos
+end
+
+def slide(linePos)#0
+    byte fgColour
+    byte bgColour
+
+    puts("slide\n")
+    linePos = ignore(linePos, " ")
+    fgColour, bgColour, linePos = getFgBg(linePos)
+
+    if fgColour < NUM_COLOURS
+        puts("foreground colour:");puti(fgColour);putln
+    fin
+    if bgColour < NUM_COLOURS
+        puts("background colour:");puti(bgColour);putln
+    fin
+end
+
+def titleBox(linePos)#0
+    byte just
+    byte outline
+    byte fgColour
+    byte bgColour
+    
+    puts("titleBox\n")
+    // check for justification, line, fg/bg
+    linePos = ignore(linePos, " ")
+    just, linePos = optionHere(linePos, @justification, NUM_JUST)
+    if just < NUM_JUST
+        puts("justification:");puti(just);putln
+    fin
+    linePos = ignore(linePos, ", ")
+    outline, fgColour, bgColour, linePos = getLineFG(linePos)
+
+    if outline < NUM_BOXTYPE
+        puts("box outline:");puti(outline);putln
+    fin
+    if fgColour < NUM_COLOURS
+        puts("foreground colour:");puti(fgColour);putln
+    fin
+    if bgColour < NUM_COLOURS
+        puts("background colour:");puti(bgColour);putln
+    fin
+end
+
+def contentBox(linePos)#0
+    byte outline
+    byte fgColour
+    byte bgColour
+
+    puts("contentBox\n")
+    // check for line, fg/bg
+    linePos = ignore(linePos, " ")
+    outline, fgColour, bgColour, linePos = getLineFG(linePos)
+
+    if outline < NUM_BOXTYPE
+        puts("box outline:");puti(outline);putln
+    fin
+    if fgColour < NUM_COLOURS
+        puts("foreground colour:");puti(fgColour);putln
+    fin
+    if bgColour < NUM_COLOURS
+        puts("background colour:");puti(bgColour);putln
+    fin
+end
+
+def build(linePos)#0
+    byte buildType
+
+    puts("build\n")
+    linePos = ignore(linePos, " ")
+    buildType, linePos = optionHere(linePos, @buildup, NUM_BUILD)
+    if buildType < NUM_BUILD
+        puts("build type:");puti(buildType);putln
+    fin
+end
+
+def bullet(linePos)#0
+    byte bulletType
+    byte bulletColour
+
+    puts("bullet\n")
+    linePos = ignore(linePos, " ")
+    bulletType, linePos = optionHere(linePos, @bulletNames, NUM_BULLET)
+    if bulletType < NUM_BULLET
+        puts("bullet char:");putc(bulletChars[bulletType]);putln
+    fin
+    linePos = ignore(linePos, ", ")
+    // also a single colour
+    bulletColour, linePos = optionHere(linePos, @colours, NUM_COLOURS)
+    if bulletColour < NUM_COLOURS
+        puts("bullet colour:");puti(bulletColour);putln
+    fin
+end
+
+def parseCommand(linePos)#0
+    word comPos
+    byte comLen
+    byte com
+
+    com, linePos = optionHere(linePos, @commandText, NUM_COMS)
+    linePos = ignore(linePos, ": ,")
+
+    if com < NUM_COMS
+        puts("calling:")
+        k2commands[com](linePos)#0
+    fin
+end
+
+def parseLine(line)#0
+    when ^(line + 1)
+        is '#'
+            parseCommand(line + 2) // over length and '#'
+            break
+        is '+'
+            puts("bullet\n")
+            break
+        is ' '
+            puts("space\n")
+            break
+        is '\n'
+            puts("empty\n")
+            break
+        otherwise
+    wend
+end
 
 def readK2file(refnum)#0
-    byte[80] line
-    word size
+    byte[81] line // should be big enough
+
     puts("Reading K2 file.\n")
     fileio:newline(refnum, $7F, $0D)
     repeat
-        size = fileio:read(refnum, @line, 80)
-        puts("data read:"); puti(size); putln
-    until size == 0
+        line = fileio:read(refnum, @line + 1, 80)
+        if line
+            puts(@line)
+            parseLine(@line)
+        fin
+    until line == 0
 end
 
 def openK2file(name)#0
@@ -29,6 +260,8 @@ def openK2file(name)#0
 end
 
 //ToDo: get file name from command line.
-fileio:setpfx("present")
+// fileio:setpfx("present")
+
 openK2file("About.k2")
+
 done

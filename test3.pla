@@ -7,35 +7,32 @@ sysflags restxt1|resxtxt1
 byte[] title = " K2 Limitations "
 byte left
 byte top = 0
-byte titleHeight = 1
-byte titleLength
+byte titleHeight = 3
 byte contentHeight = 23
 
 fbInit(MAGENTA, DARK_BLUE, FALSE, TRUE)
-titleLength = fbFormattedLength(@title)
-left = justifiedStart(LEFTJ, titleLength, TRUE)
-// only need to use fbFormattedLength if formatting used in the title
-
-fbBox(left - 1, top, titleLength, titleHeight)
+left = justifiedStart(LEFTJ, title, TRUE)
+fbBox(left - 1, top, title, titleHeight)
 top++
 fbTitleArea(@title, left, top, titleHeight, WHITE, BLACK)
+
 top = top + titleHeight
 contentHeight = contentHeight - top - 1
 fbBox(0, top, 38, contentHeight)
-fbTrack(left, top, titleLength)
+fbTrack(left, top, title)
 top++
 fbViewport(1, top, 38, contentHeight, WHITE, BLACK)
-
 fbBullet('[', ORANGE)
+
 putln
-fbPutf("+ The box colours are determined by\n")
-fbPutf("  the initial foreground and\n")
-fbPutf("  background colours...\n")
+fbPutf("+ The box *{GREEN}colours* are determined by\n")
+fbPutf("  the initial *{MAGENTA}foreground* and\n")
+fbPutf("  *{DARK_BLUE}background* colours...\n")
 putln
 fbPutf("  + so the title and content box\n")
 fbPutf("    outlines are the same *{GREY2}(as here)\n")
 putln
-fbPutf("+ *{GREEN}Underlines* are only allowed if the\n")
+fbPutf("+ Underlines* are only allowed if the\n")
 fbPutf("  following line is _empty_ at that\n")
 fbPutf("  location\n")
 putln

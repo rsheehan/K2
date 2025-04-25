@@ -1,0 +1,23 @@
+include "inc/cmdsys.plh"
+
+export def upperCase(c)#1
+    return c >= 'a' and c <= 'z' ?? c - $20 :: c
+end
+
+// Compares the bytes at two addresses.
+// 'data' can have upper or lowercase letters
+// 'upper' must be uppercase
+export def byteCmp(data, upper, size)#1
+    word i
+
+    for i = 1 to size
+        if upperCase(^data) <> ^upper
+            return FALSE
+        fin
+        data++
+        upper++
+    next
+    return TRUE
+end
+
+done

@@ -1,18 +1,15 @@
 #SLIDE: magenta/dark_blue
-#TITLEBOX: line, left, white/black
-#CONTENTBOX: 
+#TITLEBOX: left, line, white/black
+#CONTENTBOX: line, white/black
 #BUILD: all
 #BULLET: diamond, orange
 
-123456789012345678901234567890123456
-#SLIDE:
-#TITLEBOX: line, centre, white/black
-#CONTENTBOX: 
 #-----------------------------------
-
+ 
  K2 Limitations 
 
 #-----------------------------------
+
 + The box colours are determined by
   the initial foreground and
   background colours...

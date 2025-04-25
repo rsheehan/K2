@@ -2,6 +2,10 @@ include "inc/cmdsys.plh"
 include "inc/conio.plh"
 include "inc/fbtext.plh" // so we have access to the constants
 
+import util
+    predef byteCmp(data, upper, size)#1
+end
+
 const AN3OFF		= $C05E // R/W
 const AN3ON			= $C05F // R/W
 const TEXTOFF		= $C050 // R/W
@@ -26,22 +30,23 @@ word txt1scrn[]	= $0400,$0480,$0500,$0580,$0600,$0680,$0700,$0780
 word			= $0428,$04A8,$0528,$05A8,$0628,$06A8,$0728,$07A8
 word			= $0450,$04D0,$0550,$05D0,$0650,$06D0,$0750,$07D0
 
-byte[] colours  = "BLACK"
-byte            = "MAGENTA"
-byte            = "DARK_BLUE"
-byte            = "PURPLE"
-byte            = "DARK_GREEN"
-byte            = "GREY1"
-byte            = "MEDIUM_BLUE"
-byte            = "LIGHT_BLUE"
-byte            = "BROWN"
-byte            = "ORANGE"
-byte            = "GREY2"
-byte            = "PINK"
-byte            = "GREEN"
-byte            = "YELLOW"
-byte            = "AQUAMARINE"
-byte            = "WHITE"
+export byte[] colours
+byte    = "BLACK"
+byte    = "MAGENTA"
+byte    = "DARK_BLUE"
+byte    = "PURPLE"
+byte    = "DARK_GREEN"
+byte    = "GREY1"
+byte    = "MEDIUM_BLUE"
+byte    = "LIGHT_BLUE"
+byte    = "BROWN"
+byte    = "ORANGE"
+byte    = "GREY2"
+byte    = "PINK"
+byte    = "GREEN"
+byte    = "YELLOW"
+byte    = "AQUAMARINE"
+byte    = "WHITE"
 
 byte bulletColour = ORANGE
 byte bulletChar = '[' // the diamond
@@ -267,33 +272,20 @@ def colourValue(pos)#2
     word wordPos
     byte c
     byte length
-    byte found
     word i
 
     if ^pos <> '{'
         return 16, 0 // no colour, no jump
     fin
-    found = 0
+    wordPos = pos + 1 // back to the start
     colourPos = @colours
     for colour = 0 to 15
-        wordPos = pos + 1 // back to the start
         length = ^colourPos
-        for i = 1 to length
-            colourPos++
-            c = ^wordPos
-            if c >= 'a' and c <= 'z'
-                c = c - $20
-            fin
-            if c <> ^colourPos
-                colourPos = colourPos + (length - i)
-                break
-            fin
-            wordPos++
-        next
-        if i == length + 1
-            break // found the colour 0 to 15
-        fin
         colourPos++
+        if byteCmp(wordPos, colourPos, length)
+            break
+        fin
+        colourPos = colourPos + length
     next
     if ^(pos + 1 + length) <> '}'
         return 16, 0 // no colour, no jump
@@ -458,7 +450,6 @@ end
 export def fbTitleArea(title, left, top, height, fg,  bg)#0
     byte x, y
     
-    // todo: work out title length now that formatting info is included
     fbViewport(left, top, ^title, height, bg, fg)
     putc($0F) // inverse
     conio:clear(cls)

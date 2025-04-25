@@ -25,8 +25,7 @@ Types of boxes
 None - just the interior Viewport
 Line - mousetext outline, this takes up 2 extra lines (height)
 and 2 extra characters (width) than the viewport
-Solid - a filled character around the perimeter?
-Solid/Line - both
+Solid - a filled character around the perimeter? No. Looks ugly.
 
 Justifications
 left, centre, right

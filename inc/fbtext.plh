@@ -23,8 +23,10 @@ import fbtext
     //
     // Box types
     //
-    const NONE      = 0
-    const LINE      = 1
+    const NONEB     = 0
+    const LINEB     = 1
+
+    byte[] colours
     //
     // Justification
     //
