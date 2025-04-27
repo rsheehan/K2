@@ -4,7 +4,7 @@ include "inc/fbtext.plh"
 
 sysflags restxt1|resxtxt1
 
-byte[] title = " K2 Presentation "
+byte[] title = "K2 Presentation"
 byte left
 byte top = 0
 byte titleHeight = 3

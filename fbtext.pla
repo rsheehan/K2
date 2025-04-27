@@ -454,7 +454,7 @@ export def fbTitleArea(title, left, top, height, fg,  bg)#0
     putc($0F) // inverse
     conio:clear(cls)
     conio:gotoxy(0, height / 2)
-    if height == 1
+    if height < 3 // == 1
         ^title-- // don't print last char
         puts(title)
         ^title++ // restore title length

@@ -1,6 +1,9 @@
 include "inc/cmdsys.plh"
 include "inc/fileio.plh"
 include "inc/fbtext.plh"
+include "inc/conio.plh"
+
+sysflags restxt1|resxtxt1
 
 import util
     predef byteCmp(data, upper, size)#1
@@ -19,34 +22,76 @@ const NUM_BUILD     = 2
 const NUM_JUST      = 3
 const NUM_BULLET    = 8
 
-byte[] commandText  = "SLIDE"
-byte                = "TITLEBOX"
-byte                = "CONTENTBOX"
-byte                = "BUILD"
-byte                = "BULLET"
+struc t_slide
+    byte sForeground
+    byte sBackground
+end
 
-byte[] boxType  = "LINE"
-byte            = "NONE"
+byte[t_slide] slideInfo = WHITE, BLACK
+byte slideBuild = 0 // all at once
 
-byte[] buildup  = "ALL"
-byte            = "POINT"
+struc t_content
+    byte cBoxOutline
+    byte cForeground
+    byte cBackground
+end
 
-byte[] justification    = "LEFT"
-byte                    = "CENTRE"
-byte                    = "RIGHT"
+byte[t_content] contentInfo = 0, WHITE, BLACK // line
+byte contentHeight = 24
 
-byte[] bulletNames  = "DIAMOND"
-byte                = "CROSS"
-byte                = "OPENAPPLE"
-byte                = "CLOSEDAPPLE"
-byte                = "CHECKMARK"
-byte                = "ELLIPSIS"
-byte                = "HYPHEN"
-byte                = "ARROW"
+struc t_title
+    byte tBoxOutline
+    byte tForeground
+    byte tBackground
+    byte tLeft      // gets filled in when justified
+    byte tJust      // justification: left, centre, right
+    byte tHeight    // title height (inside, not outline)
+    byte[40] tText // title string
+end
+
+byte[t_title] titleInfo = 0, WHITE, BLACK, 0, 1, 1, 0
+// box?, fg, bg, left, just, height, no-string
+
+byte[] commandText
+byte    = "SLIDE"       // 0
+byte    = "TITLEBOX"    // 1
+byte    = "CONTENTBOX"  // 2
+byte    = "BUILD"       // 3
+byte    = "BULLET"      // 4
+
+byte[] boxType
+byte    = "NONE"    // 0
+byte    = "LINE"    // 1
+
+byte[] buildup  
+byte    = "ALL"     // 0
+byte    = "POINT"   // 1
+
+byte[] justification
+byte    = "LEFT"    // 0
+byte    = "CENTRE"  // 1
+byte    = "RIGHT"   // 2
+
+byte[] bulletNames
+byte    = "DIAMOND"     // 0
+byte    = "CROSS"       // 1
+byte    = "OPENAPPLE"   // 2
+byte    = "CLOSEDAPPLE" // 3
+byte    = "CHECKMARK"   // 4
+byte    = "ELLIPSIS"    // 5
+byte    = "HYPHEN"      // 6
+byte    = "ARROW"       // 7
 
 byte[] bulletChars = '[', ']', 'A', '@', 'D', 'I', 'S', 'U'
 
 word k2commands[] = @slide, @titleBox, @contentBox, @build, @bullet
+
+const ST_START      = 0
+const ST_TITLE      = 1
+const ST_CONTENT    = 2
+
+byte state = ST_START
+byte screenLine = 0
 
 // move over characters which should be ignored
 def ignore(linePos, ignored)#1 // ignored is a string of chars
@@ -63,7 +108,8 @@ def ignore(linePos, ignored)#1 // ignored is a string of chars
     return linePos
 end
 
-def optionHere(linePos, optionPos, numOptions)#2 // return option number and new position
+// return option number and new position
+def optionHere(linePos, optionPos, numOptions)#2
     byte length
     byte option
 
@@ -104,19 +150,19 @@ def getLineFG(linePos)#4
     return outline, fgColour, bgColour, linePos
 end
 
+// Deal with slide info
 def slide(linePos)#0
     byte fgColour
     byte bgColour
 
-    puts("slide\n")
     linePos = ignore(linePos, " ")
     fgColour, bgColour, linePos = getFgBg(linePos)
 
     if fgColour < NUM_COLOURS
-        puts("foreground colour:");puti(fgColour);putln
+        slideInfo[sForeground] = fgColour
     fin
     if bgColour < NUM_COLOURS
-        puts("background colour:");puti(bgColour);putln
+        slideInfo[sBackground] = bgColour
     fin
 end
 
@@ -126,24 +172,23 @@ def titleBox(linePos)#0
     byte fgColour
     byte bgColour
     
-    puts("titleBox\n")
     // check for justification, line, fg/bg
     linePos = ignore(linePos, " ")
     just, linePos = optionHere(linePos, @justification, NUM_JUST)
     if just < NUM_JUST
-        puts("justification:");puti(just);putln
+        titleInfo[tJust] = just
     fin
     linePos = ignore(linePos, ", ")
     outline, fgColour, bgColour, linePos = getLineFG(linePos)
 
     if outline < NUM_BOXTYPE
-        puts("box outline:");puti(outline);putln
+        titleInfo[tBoxOutline] = outline
     fin
     if fgColour < NUM_COLOURS
-        puts("foreground colour:");puti(fgColour);putln
+        titleInfo[tForeground] = fgColour
     fin
     if bgColour < NUM_COLOURS
-        puts("background colour:");puti(bgColour);putln
+        titleInfo[tBackground] = bgColour
     fin
 end
 
@@ -152,30 +197,28 @@ def contentBox(linePos)#0
     byte fgColour
     byte bgColour
 
-    puts("contentBox\n")
     // check for line, fg/bg
     linePos = ignore(linePos, " ")
     outline, fgColour, bgColour, linePos = getLineFG(linePos)
 
     if outline < NUM_BOXTYPE
-        puts("box outline:");puti(outline);putln
+        contentInfo[cBoxOutline] = outline
     fin
     if fgColour < NUM_COLOURS
-        puts("foreground colour:");puti(fgColour);putln
+        contentInfo[cForeground] = fgColour
     fin
     if bgColour < NUM_COLOURS
-        puts("background colour:");puti(bgColour);putln
+        contentInfo[cBackground] = bgColour
     fin
 end
 
 def build(linePos)#0
     byte buildType
 
-    puts("build\n")
     linePos = ignore(linePos, " ")
     buildType, linePos = optionHere(linePos, @buildup, NUM_BUILD)
     if buildType < NUM_BUILD
-        puts("build type:");puti(buildType);putln
+        slideBuild = buildType
     fin
 end
 
@@ -183,21 +226,43 @@ def bullet(linePos)#0
     byte bulletType
     byte bulletColour
 
-    puts("bullet\n")
     linePos = ignore(linePos, " ")
     bulletType, linePos = optionHere(linePos, @bulletNames, NUM_BULLET)
-    if bulletType < NUM_BULLET
-        puts("bullet char:");putc(bulletChars[bulletType]);putln
-    fin
     linePos = ignore(linePos, ", ")
     // also a single colour
     bulletColour, linePos = optionHere(linePos, @colours, NUM_COLOURS)
-    if bulletColour < NUM_COLOURS
-        puts("bullet colour:");puti(bulletColour);putln
+    if bulletType < NUM_BULLET and bulletColour < NUM_COLOURS
+        setBulletFormat(bulletChars[bulletType], bulletColour)
     fin
 end
 
-def parseCommand(linePos)#0
+def displayTitle()#0
+    screenLine = 0
+    titleInfo[tleft] = justifiedStart(titleInfo[tJust], titleInfo[tText], titleInfo[tBoxOutline])
+    if titleInfo[tBoxOutline]
+        fbBox(titleInfo[tleft] - titleInfo[tBoxOutline], screenLine, titleInfo[tText], titleInfo[tHeight])
+        screenLine++
+    fin
+    fbTitleArea(@titleInfo[tText], titleInfo[tleft], screenLine, titleInfo[tHeight], titleInfo[tForeground], titleInfo[tBackground])
+    screenLine = screenLine + titleInfo[tHeight]
+end
+
+def prepareContent()#0
+    contentHeight = 24 - screenLine
+    if contentInfo[cBoxOutline]
+        contentHeight = contentHeight - 2
+    fin
+    if contentInfo[cBoxOutline]
+        fbBox(0, screenLine, 38, contentHeight)
+        if titleInfo[tBoxOutline]
+            fbTrack(titleInfo[tleft], screenLine, titleInfo[tText])
+        fin
+        screenLine++
+    fin
+    fbViewport(contentInfo[cBoxOutline], screenLine, 40 - 2 * contentInfo[cBoxOutline], contentHeight, contentInfo[cForeground], contentInfo[cBackground])
+end
+
+def parseCommand(linePos)#1
     word comPos
     byte comLen
     byte com
@@ -206,38 +271,86 @@ def parseCommand(linePos)#0
     linePos = ignore(linePos, ": ,")
 
     if com < NUM_COMS
-        puts("calling:")
         k2commands[com](linePos)#0
     fin
+    return ^linePos
 end
 
-def parseLine(line)#0
-    when ^(line + 1)
+// fills in title text if non-space characters on the line
+// Now puts the same number of spaces on the right as on the left
+// to help when using +ed editor.
+def scanForTitle(lineStr)#0
+    byte c
+    word pos
+    byte spaces
+
+    pos = lineStr
+    spaces = 0
+    ^pos-- // last char '\n'
+    for c = 1 to ^pos
+        if ^(pos + c) <> ' '
+            memset(@titleInfo + tText, ' ', 40)
+            strcpy(@titleInfo + tText, lineStr)
+            break
+        else
+            spaces++
+        fin
+    next
+    titleInfo[tText] = titleInfo[tText] + spaces
+end
+
+def parseLine(lineStr)#0
+    byte nextChar
+
+    when ^(lineStr + 1)
         is '#'
-            parseCommand(line + 2) // over length and '#'
-            break
-        is '+'
-            puts("bullet\n")
-            break
-        is ' '
-            puts("space\n")
+            nextChar = parseCommand(lineStr + 2) // over length and '#'
+            if nextChar == '-'
+                when state
+                    is ST_CONTENT
+                    is ST_START
+                        state = ST_TITLE
+                        titleInfo[tHeight] = 0
+                        titleInfo[tText] = 0 // length byte
+                        // start of a new slide
+                        fbInit(slideInfo[sForeground], slideInfo[sBackground], FALSE, TRUE) // currently no other slides
+                        break
+                    is ST_TITLE
+                        state = ST_CONTENT
+                        displayTitle()
+                        prepareContent()
+                        break
+                wend
+            fin
             break
         is '\n'
-            puts("empty\n")
+            when state
+                is ST_TITLE
+                    titleInfo[tHeight]++
+                    break
+                is ST_CONTENT
+                    putln
+            wend
             break
         otherwise
+            if state == ST_TITLE
+                titleInfo[tHeight]++
+                if titleInfo[tText] == 0 // no title text so far
+                    scanForTitle(lineStr)
+                fin
+            else
+                fbPutf(lineStr)
+            fin
     wend
 end
 
 def readK2file(refnum)#0
     byte[81] line // should be big enough
 
-    puts("Reading K2 file.\n")
     fileio:newline(refnum, $7F, $0D)
     repeat
         line = fileio:read(refnum, @line + 1, 80)
         if line
-            puts(@line)
             parseLine(@line)
         fin
     until line == 0
@@ -263,5 +376,7 @@ end
 // fileio:setpfx("present")
 
 openK2file("About.k2")
+conio:getKey()
+fbOff()
 
 done
