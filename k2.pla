@@ -37,7 +37,6 @@ struc t_content
 end
 
 byte[t_content] contentInfo = 0, WHITE, BLACK // line
-byte contentHeight = 24
 
 struc t_title
     byte tBoxOutline
@@ -89,9 +88,6 @@ word k2commands[] = @slide, @titleBox, @contentBox, @build, @bullet
 const ST_START      = 0
 const ST_TITLE      = 1
 const ST_CONTENT    = 2
-
-byte state = ST_START
-byte screenLine = 0
 
 // move over characters which should be ignored
 def ignore(linePos, ignored)#1 // ignored is a string of chars
@@ -236,18 +232,25 @@ def bullet(linePos)#0
     fin
 end
 
-def displayTitle()#0
+def displayTitle()#1
+    byte screenLine
+
     screenLine = 0
-    titleInfo[tleft] = justifiedStart(titleInfo[tJust], titleInfo[tText], titleInfo[tBoxOutline])
-    if titleInfo[tBoxOutline]
-        fbBox(titleInfo[tleft] - titleInfo[tBoxOutline], screenLine, titleInfo[tText], titleInfo[tHeight])
-        screenLine++
+    if titleInfo[tText]
+        titleInfo[tleft] = justifiedStart(titleInfo[tJust], titleInfo[tText], titleInfo[tBoxOutline])
+        if titleInfo[tBoxOutline]
+            fbBox(titleInfo[tleft] - titleInfo[tBoxOutline], screenLine, titleInfo[tText], titleInfo[tHeight])
+            screenLine++
+        fin
+        fbTitleArea(@titleInfo[tText], titleInfo[tleft], screenLine, titleInfo[tHeight], titleInfo[tForeground], titleInfo[tBackground])
+        screenLine = screenLine + titleInfo[tHeight]
     fin
-    fbTitleArea(@titleInfo[tText], titleInfo[tleft], screenLine, titleInfo[tHeight], titleInfo[tForeground], titleInfo[tBackground])
-    screenLine = screenLine + titleInfo[tHeight]
+    return screenLine
 end
 
-def prepareContent()#0
+def prepareContent(screenLine)#0
+    byte contentHeight
+
     contentHeight = 24 - screenLine
     if contentInfo[cBoxOutline]
         contentHeight = contentHeight - 2
@@ -297,7 +300,7 @@ def scanForTitle(lineStr)#0
     titleInfo[tText] = titleInfo[tText] + spaces
 end
 
-def parseLine(lineStr)#0
+def parseLine(lineStr, state)#1
     byte nextChar
 
     when ^(lineStr + 1)
@@ -315,8 +318,7 @@ def parseLine(lineStr)#0
                         break
                     is ST_TITLE
                         state = ST_CONTENT
-                        displayTitle()
-                        prepareContent()
+                        prepareContent(displayTitle()) // start showing slide
                         break
                 wend
             fin
@@ -337,19 +339,22 @@ def parseLine(lineStr)#0
                     scanForTitle(lineStr)
                 fin
             else
-                fbPutf(lineStr)
+                fbPutf(lineStr) // formatted lines added to slide
             fin
     wend
+    return state
 end
 
 def readK2file(refnum)#0
     byte[81] line // should be big enough
+    byte state
 
+    state = ST_START
     fileio:newline(refnum, $7F, $0D)
     repeat
         line = fileio:read(refnum, @line + 1, 80)
         if line
-            parseLine(@line)
+            state = parseLine(@line, state)
         fin
     until line == 0
 end
