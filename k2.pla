@@ -6,6 +6,7 @@ include "inc/conio.plh"
 sysflags restxt1|resxtxt1
 
 import util
+    predef upperCase(c)#1
     predef byteCmp(data, upper, size)#1
 end
 
@@ -88,6 +89,7 @@ word k2commands[] = @slide, @titleBox, @contentBox, @build, @bullet
 const ST_START      = 0
 const ST_TITLE      = 1
 const ST_CONTENT    = 2
+const ST_NEWSLIDE   = 3
 
 // move over characters which should be ignored
 def ignore(linePos, ignored)#1 // ignored is a string of chars
@@ -276,7 +278,7 @@ def parseCommand(linePos)#1
     if com < NUM_COMS
         k2commands[com](linePos)#0
     fin
-    return ^linePos
+    return com < NUM_COMS
 end
 
 // fills in title text if non-space characters on the line
@@ -305,22 +307,30 @@ def parseLine(lineStr, state)#1
 
     when ^(lineStr + 1)
         is '#'
-            nextChar = parseCommand(lineStr + 2) // over length and '#'
-            if nextChar == '-'
-                when state
-                    is ST_CONTENT
-                    is ST_START
-                        state = ST_TITLE
-                        titleInfo[tHeight] = 0
-                        titleInfo[tText] = 0 // length byte
-                        // start of a new slide
-                        fbInit(slideInfo[sForeground], slideInfo[sBackground], FALSE, TRUE) // currently no other slides
-                        break
-                    is ST_TITLE
-                        state = ST_CONTENT
-                        prepareContent(displayTitle()) // start showing slide
-                        break
-                wend
+            if state == ST_CONTENT
+                state = ST_NEWSLIDE
+                return state
+            fin
+            nextChar = ^(lineStr + 2) // over length and '#'
+            if parseCommand(lineStr + 2)
+                state = ST_START
+            else
+                if nextChar == '-'
+                    when state
+                        // is ST_CONTENT
+                        is ST_START
+                            state = ST_TITLE
+                            titleInfo[tHeight] = 0
+                            titleInfo[tText] = 0 // length byte
+                            // start of a new slide
+                            fbInit(slideInfo[sForeground], slideInfo[sBackground], FALSE, TRUE) // currently no other slides
+                            break
+                        is ST_TITLE
+                            state = ST_CONTENT
+                            prepareContent(displayTitle()) // start showing slide
+                            break
+                    wend
+                fin
             fin
             break
         is '\n'
@@ -345,18 +355,43 @@ def parseLine(lineStr, state)#1
     return state
 end
 
-def readK2file(refnum)#0
+def userCommand()#1
+    return upperCase(conio:getKey())
+end
+
+def showSlide(refnum, slide)#0
     byte[81] line // should be big enough
     byte state
+    word lineLo
+    byte lineHi
 
     state = ST_START
-    fileio:newline(refnum, $7F, $0D)
     repeat
+        lineLo, lineHi = fileio:getMark(refnum)#2
         line = fileio:read(refnum, @line + 1, 80)
         if line
             state = parseLine(@line, state)
+            if state == ST_NEWSLIDE
+                fileio:setMark(refnum, lineLo, lineHi)
+                return
+            fin
         fin
     until line == 0
+end
+
+def slideShow(refnum)#0
+    byte slide
+
+    slide = 1
+    while TRUE
+        showSlide(refnum, slide)
+        when userCommand()
+            is 'Q'
+                return
+            is ' '
+                slide++
+        wend
+    loop
 end
 
 def openK2file(name)#0
@@ -364,7 +399,8 @@ def openK2file(name)#0
 
     refnum = fileio:open(name)
     if refnum
-        readK2file(refnum)
+        fileio:newline(refnum, $7F, $0D)
+        slideShow(refnum)
         fileio:close(refnum)
     else
         puts("Error opening \"")
@@ -379,7 +415,6 @@ end
 // fileio:setpfx("present")
 
 openK2file("About.k2")
-conio:getKey()
 fbOff()
 
 done

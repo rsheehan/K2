@@ -5,6 +5,22 @@
 #BULLET: diamond, orange
 
 #-----------------------------------
+
+ What is K2?
+
+#-----------------------------------
+
++ An Apple IIe/c presentation
+  program
+
++ Can display multicoloured text if
+  an A2DVI board or Video7
+  compatible provides the output
+
++ Uses mousetext characters for
+  boxes, bullets and _underlining_
+
+#-----------------------------------
  
  K2 Limitations 
 
