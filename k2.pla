@@ -54,8 +54,8 @@ byte[t_title] titleInfo = 0, WHITE, BLACK, 0, 1, 1, 0
 
 byte[] commandText
 byte    = "SLIDE"       // 0
-byte    = "TITLEBOX"    // 1
-byte    = "CONTENTBOX"  // 2
+byte    = "TITLE"    // 1
+byte    = "CONTENT"  // 2
 byte    = "BUILD"       // 3
 byte    = "BULLET"      // 4
 
@@ -85,6 +85,9 @@ byte    = "ARROW"       // 7
 byte[] bulletChars = '[', ']', 'A', '@', 'D', 'I', 'S', 'U'
 
 word k2commands[] = @slide, @titleBox, @contentBox, @build, @bullet
+
+word[100] slidePositions
+byte i
 
 const ST_START      = 0
 const ST_TITLE      = 1
@@ -359,13 +362,21 @@ def userCommand()#1
     return upperCase(conio:getKey())
 end
 
-def showSlide(refnum, slide)#0
+def showSlide(refnum, slide)#1
     byte[81] line // should be big enough
     byte state
     word lineLo
     byte lineHi
 
     state = ST_START
+    if slidePositions[slide] <> -1
+        fileio:setMark(refnum, slidePositions[slide], 0)
+    else
+        lineLo, lineHi = fileio:getMark(refnum)#2
+        slidePositions[slide] = lineLo
+        // puti(slide);putc(' ');puti(lineLo);putln
+        // conio:getKey()
+    fin
     repeat
         lineLo, lineHi = fileio:getMark(refnum)#2
         line = fileio:read(refnum, @line + 1, 80)
@@ -373,23 +384,33 @@ def showSlide(refnum, slide)#0
             state = parseLine(@line, state)
             if state == ST_NEWSLIDE
                 fileio:setMark(refnum, lineLo, lineHi)
-                return
+                return FALSE
             fin
         fin
     until line == 0
+    return TRUE
 end
 
 def slideShow(refnum)#0
     byte slide
+    byte finished
 
-    slide = 1
+    slide = 0
     while TRUE
-        showSlide(refnum, slide)
+        finished = showSlide(refnum, slide)
         when userCommand()
             is 'Q'
                 return
             is ' '
-                slide++
+            is $15
+                if not finished
+                    slide++
+                fin
+                break
+            is $08 // ctrl-H
+                if slide > 0
+                    slide--
+                fin
         wend
     loop
 end
@@ -413,8 +434,14 @@ end
 
 //ToDo: get file name from command line.
 // fileio:setpfx("present")
-
+memset(@slidePositions, -1, 100)
 openK2file("About.k2")
 fbOff()
+
+i = 0
+while slidePositions[i] <> -1
+    puti(slidePositions[i]); putln
+    i++
+loop
 
 done
