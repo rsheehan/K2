@@ -17,6 +17,9 @@ predef contentBox(linePos)#0
 predef build(linePos)#0
 predef bullet(linePos)#0
 
+const BOT_LEFT  = $07D0 // screen address of bottom,left char
+const BOT_RIGHT = $07F7 // screen address of bottom,right char
+
 const NUM_COMS      = 5
 const NUM_COLOURS   = 16
 const NUM_BOXTYPE   = 2
@@ -322,7 +325,7 @@ def scanForTitle(lineStr)#0
     titleInfo[tText] = titleInfo[tText] + spaces
 end
 
-def parseLine(lineStr, state)#1
+def parseLine(lineStr, state, slide)#1
     byte nextChar
 
     when ^(lineStr + 1)
@@ -343,7 +346,7 @@ def parseLine(lineStr, state)#1
                             titleInfo[tHeight] = 0
                             titleInfo[tText] = 0 // length byte
                             // start of a new slide
-                            fbInit(slideInfo[sForeground], slideInfo[sBackground], FALSE, TRUE) // currently no other slides
+                            fbInit(slideInfo[sForeground], slideInfo[sBackground])
                             break
                         is ST_TITLE
                             state = ST_CONTENT
@@ -434,7 +437,7 @@ def showSlide(refnum, slide)#1
         lineLo, lineHi = fileio:getMark(refnum)#2
         line = fileio:read(refnum, @line + 1, 80)
         if line
-            state = parseLine(@line, state)
+            state = parseLine(@line, state, slide)
             if state == ST_NEWSLIDE
                 fileio:setMark(refnum, lineLo, lineHi)
                 return FALSE
@@ -444,19 +447,27 @@ def showSlide(refnum, slide)#1
     return TRUE
 end
 
+def slideArrows(leftArrow, rightArrow)#0
+    byte bg
+
+    bg = slideInfo[sBackground]
+    if leftArrow
+        pokeChar('H', BOT_LEFT, bg) // left arrow
+    fin
+    if rightArrow
+        pokeChar('U', BOT_RIGHT, bg) // right arrow
+    fin
+end
+
 def slideShow(refnum)#0
     byte slide
-    // byte savedSlide
     byte finished
 
-    // savedSlide = -1
+    // finished = FALSE
     slide = 0
     while TRUE
-        // if slide > savedSlide // only save going forward
-        //     storeSlideParameters(slide)
-        //     savedSlide = slide
-        // fin
         finished = showSlide(refnum, slide)
+        slideArrows(slide > 0, not finished)
         when userCommand()
             is 'Q'
                 return

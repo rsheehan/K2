@@ -40,7 +40,7 @@ import fbtext
 	//
 	// API
 	//
-	predef fbInit(fg, bg, leftArrow, rightArrow)#0
+	predef fbInit(fg, bg)#0
     predef fbOff#0
     predef fbPutc(c, fg, bg)#0
     predef fbPuts(text, fg, bg)#0
@@ -53,5 +53,6 @@ import fbtext
     predef fbPutf(string)#0
     predef fbBullet(c, colour)#0
     predef fbFormattedLength(string)#1
+    predef pokeChar(ch, pos, bg)#0
     predef setBulletFormat(ch, colour)#0
 end

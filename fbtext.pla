@@ -23,9 +23,6 @@ const WNDTOP    = $22
 const CURSH		= $24 // N.B. horizontal cursor relative to viewport
 const CURSV		= $25 // vertical cursor relative to screen
 
-const BOT_LEFT  = $07D0 // screen address of bottom,left char
-const BOT_RIGHT = $07F7 // screen address of bottom,right char
-
 word txt1scrn[]	= $0400,$0480,$0500,$0580,$0600,$0680,$0700,$0780
 word			= $0428,$04A8,$0528,$05A8,$0628,$06A8,$0728,$07A8
 word			= $0450,$04D0,$0550,$05D0,$0650,$06D0,$0750,$07D0
@@ -114,7 +111,7 @@ export def fbViewport(left, top, width, height, fg, bg)#0
 	^TEXTSTORE
 end
 
-def pokeChar(ch, pos, bg)#0
+export def pokeChar(ch, pos, bg)#0
     byte colour
 
     colour = GREY1
@@ -129,8 +126,7 @@ end
 
 // Initialise foreground/background text.
 // Clears the whole screen.
-// Optionally shows arrows to move forward/back.
-export def fbInit(fg, bg, leftArrow, rightArrow)#0
+export def fbInit(fg, bg)#0
     extendedVideoOn
 	^AN3OFF
 	^TEXTON
@@ -139,12 +135,6 @@ export def fbInit(fg, bg, leftArrow, rightArrow)#0
 	// fill in display with starting colours
     fbViewport(0, 0, 40, 24, fg, bg)
 	conio:clear(cls)
-    if leftArrow
-        pokeChar('H', BOT_LEFT, bg) // left arrow
-    fin
-    if rightArrow
-        pokeChar('U', BOT_RIGHT, bg) // right arrow
-    fin
 end
 
 // Turn off foreground/background text.
