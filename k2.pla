@@ -461,12 +461,17 @@ end
 def slideShow(refnum)#0
     byte slide
     byte finished
+    byte current
 
     // finished = FALSE
+    current = -1
     slide = 0
     while TRUE
-        finished = showSlide(refnum, slide)
-        slideArrows(slide > 0, not finished)
+        if current <> slide
+            finished = showSlide(refnum, slide)
+            slideArrows(slide > 0, not finished)
+        fin
+        current = slide
         when userCommand()
             is 'Q'
                 return
