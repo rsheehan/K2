@@ -2,6 +2,7 @@ include "inc/cmdsys.plh"
 include "inc/fileio.plh"
 include "inc/fbtext.plh"
 include "inc/conio.plh"
+include "inc/args.plh"
 
 sysflags restxt1|resxtxt1
 
@@ -86,8 +87,24 @@ byte[] bulletChars = '[', ']', 'A', '@', 'D', 'I', 'S', 'U'
 
 word k2commands[] = @slide, @titleBox, @contentBox, @build, @bullet
 
+struc slideP
+    byte slideFG
+    byte slideBG
+    byte slideTJust
+    byte slideTBox
+    byte slideTFG
+    byte slideTBG
+    byte slideCBox
+    byte slideCFG
+    byte slideCBG
+    byte slideBld
+    byte slideBChar
+    byte slideBCol
+end
+
+word file
 word[100] slidePositions
-byte i
+byte[slideP] slideParams[100]
 
 const ST_START      = 0
 const ST_TITLE      = 1
@@ -362,6 +379,42 @@ def userCommand()#1
     return upperCase(conio:getKey())
 end
 
+def storeSlideParameters(slide)#0
+    word this
+
+    this = @slideParams + slide * slideP // @slideParams[slide]
+    this->slideFG       = slideInfo[sForeground]
+    this->slideBG       = slideInfo[sBackground]
+    this->slideTJust    = titleInfo[tJust]
+    this->slideTBox     = titleInfo[tBoxOutline]
+    this->slideTFG      = titleInfo[tForeground]
+    this->slideTBG      = titleInfo[tBackground]
+    this->slideCBox     = contentInfo[cBoxOutline]
+    this->slideCFG      = contentInfo[cForeground]
+    this->slideCBG      = contentInfo[cBackground]
+    this->slideBld      = slideBuild
+    this->slideBChar    = bulletChar
+    this->slideBCol     = bulletColour
+end
+
+def restoreSlideParameters(slide)#0
+    word this
+
+    this = @slideParams + slide * slideP // @slideParams[slide]
+    slideInfo[sForeground]  = this->slideFG
+    slideInfo[sBackground]  = this->slideBG
+    titleInfo[tJust]        = this->slideTJust
+    titleInfo[tBoxOutline]  = this->slideTBox
+    titleInfo[tForeground]  = this->slideTFG
+    titleInfo[tBackground]  = this->slideTBG
+    contentInfo[cBoxOutline]    = this->slideCBox
+    contentInfo[cForeground]    = this->slideCFG
+    contentInfo[cBackground]    = this->slideCBG
+    slideBuild      = this->slideBld
+    bulletChar      = this->slideBChar
+    bulletColour    = this->slideBCol
+end
+
 def showSlide(refnum, slide)#1
     byte[81] line // should be big enough
     byte state
@@ -370,12 +423,12 @@ def showSlide(refnum, slide)#1
 
     state = ST_START
     if slidePositions[slide] <> -1
+        restoreSlideParameters(slide)
         fileio:setMark(refnum, slidePositions[slide], 0)
     else
         lineLo, lineHi = fileio:getMark(refnum)#2
         slidePositions[slide] = lineLo
-        // puti(slide);putc(' ');puti(lineLo);putln
-        // conio:getKey()
+        storeSlideParameters(slide)
     fin
     repeat
         lineLo, lineHi = fileio:getMark(refnum)#2
@@ -393,10 +446,16 @@ end
 
 def slideShow(refnum)#0
     byte slide
+    // byte savedSlide
     byte finished
 
+    // savedSlide = -1
     slide = 0
     while TRUE
+        // if slide > savedSlide // only save going forward
+        //     storeSlideParameters(slide)
+        //     savedSlide = slide
+        // fin
         finished = showSlide(refnum, slide)
         when userCommand()
             is 'Q'
@@ -435,13 +494,12 @@ end
 //ToDo: get file name from command line.
 // fileio:setpfx("present")
 memset(@slidePositions, -1, 100)
-openK2file("About.k2")
-fbOff()
-
-i = 0
-while slidePositions[i] <> -1
-    puti(slidePositions[i]); putln
-    i++
-loop
+file = argNext(argFirst)
+if ^file
+    openK2file(file)
+    fbOff()
+else
+    puts("Usage: +k2 filename\n")
+fin
 
 done

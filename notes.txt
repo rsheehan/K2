@@ -10,3 +10,13 @@ State then changes to ST_START if a command is reached.
 Or state changes to ST_TITLE if a new slide separator "#-..." is reached.
 
 
+slideInfo[sForeground]
+slideInfo[sBackground]
+titleInfo[tJust]
+titleInfo[tBoxOutline]
+titleInfo[tForeground]
+titleInfo[tBackground]
+contentInfo[cBoxOutline]
+contentInfo[cForeground]
+contentInfo[cBackground]
+slideBuild

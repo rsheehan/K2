@@ -48,8 +48,8 @@ byte    = "YELLOW"
 byte    = "AQUAMARINE"
 byte    = "WHITE"
 
-byte bulletColour = ORANGE
-byte bulletChar = '[' // the diamond
+export byte bulletColour = ORANGE
+export byte bulletChar = '[' // the diamond
 
 def extendedVideoOn#0
     call($C300, $A0, 0, 0, 0)
