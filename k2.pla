@@ -340,7 +340,6 @@ def parseLine(lineStr, state, slide)#1
             else
                 if nextChar == '-'
                     when state
-                        // is ST_CONTENT
                         is ST_START
                             state = ST_TITLE
                             titleInfo[tHeight] = 0

@@ -80,6 +80,7 @@ export def fbViewport(left, top, width, height, fg, bg)#0
     byte colourByte
     word colourWord
 
+    conio:viewport(left, top, width, height)
     colourByte = fg << 4 | bg
 	conio:viewport(left, top, width, height)
     colourWord = colourByte << 8 | colourByte
@@ -134,7 +135,6 @@ export def fbInit(fg, bg)#0
 	^ST80ON = $00
 	// fill in display with starting colours
     fbViewport(0, 0, 40, 24, fg, bg)
-	conio:clear(cls)
 end
 
 // Turn off foreground/background text.
