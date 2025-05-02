@@ -1,0 +1,213 @@
+#SLIDE: magenta/dark_blue
+#TITLE: centre, line, light_blue/black
+#CONTENT: line, white/black
+#BUILD: all
+#BULLET: diamond, orange
+#-----------------------------------
+
+ What is K2?
+
+#-----------------------------------
+
++ An Apple IIe/c presentation
+  program
+
++ Displays *{MEDIUM_BLUE}multi**{GREEN}colou**{MAGENTA}red* text if an
+  A2DVI or Video7 compatible board
+  provides the output
+
++ Uses mousetext characters for
+  boxes, bullets and _underlining_
+
+#-----------------------------------
+
+ User control
+
+#-----------------------------------
+
++ Right arrow or spacebar for next
+  slide
+
++ Left arrow for previous slide
+
++ Onscreen arrows indicate next and
+  previous slides
+
++ "Q" to quit
+#TITLE: left
+#CONTENT: yellow/black
+#-----------------------------------
+
+ Slide styling
+
+#-----------------------------------
+
++ Styling is determined by ...
+
+  + commands, starting with *{WHITE}#
+
++ Commands include
+
+  + Slide foreground and background
+    colours e.g. *{white}#SLIDE: white/black
+
+  + Title justification, border and
+    colours *{white}#TITLE: centre, line,
+                    *{white}light\_blue/black
+
+  + Content border and colours
+    *{white}#CONTENT: none, grey1/grey2
+
+#TITLE: centre
+#BULLET: cross, magenta
+#-----------------------------------
+
+ Commands
+
+#-----------------------------------
+
++ foreground/background colours
+  any *{WHITE}combination* of *{WHITE}colours* (later)
+
+  + applies to slide, title, content
+
++ title justification
+
+  + *{WHITE}left, centre, right
+
++ title and contents outline
+
+  + *{WHITE}line, none
+
++ bullet shapes and colours
+
+  + e.g. *{WHITE}cross, magenta
+#BULLET: diamond, orange
+#-----------------------------------
+
+ Slide layout
+
+#-----------------------------------
+
++ Layout is determined by ...
+
+  + spacing you include in the text
+
+  + this way the text source
+    document is largely WYSIWYG
+
+ the next slide shows the _source_ of
+            this one
+
+#SLIDE: white/black
+#CONTENT: none, white/black
+#-----------------------------------
+#-----------------------------------
+\#-----------------------------------
+
+ Slide layout
+
+\#-----------------------------------
+
+\+ Layout is determined by \...
+
+  \+ spacing you include in the text
+
+  \+ this way the text source
+    document is largely WYSIWYG
+
+ the next slide shows the \_source\_ of
+            this one
+
+#SLIDE: magenta/dark_blue
+#CONTENT: line
+#-----------------------------------
+
+ Available Colours
+
+#-----------------------------------
+
+*{magenta}Magenta
+*{dark_blue}Dark blue
+*{purple}Purple
+*{dark_green}Dark green
+*{grey1}Grey1
+*{medium_blue}Medium blue
+*{light_blue}Light blue
+*{brown}Brown
+*{orange}Orange
+*{grey2}Grey2
+*{pink}Pink
+*{green}Green
+*{yellow}Yellow
+*{aquamarine}Aquamarine
+*{white}White (and of course black)
+
+#-----------------------------------
+#-----------------------------------
+
++ You can have slides without titles
+  if you need more room for your
+  points.
+
+#CONTENT: none, yellow/dark_blue
+#-----------------------------------
+#-----------------------------------
+This is a slide with no box around
+the content.
+
+12345678901234567890123456789012345678
+
+As you can see this gives you an area
+of 38x23 for your text.
+
+ 9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+#TITLE: centre
+#CONTENT: line, white/black
+#-----------------------------------
+
+ K2 Limitations
+
+#-----------------------------------
+
++ The box *{GREEN}colours* are determined by
+  the initial *{MAGENTA}foreground* and
+  *{DARK_BLUE}background* colours ...
+
+  + so the title and content box
+    outlines are the same *{GREY2}(as here)
+
++ Underlines are only allowed if the
+  following line is _empty_ at that
+  location.
+
++ Underlines are in the colour of
+  the content foreground even if the
+  underlined text is a _*{YELLOW}different_
+  colour.
+#-----------------------------------
+#-----------------------------------
+
+
+
+
+
+
+
+
+
+              *{ORANGE}THE END
