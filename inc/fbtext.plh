@@ -46,5 +46,4 @@ import fbtext
     predef fbPutf(string)#0
     predef fbBullet(c, colour)#0
     predef pokeChar(ch, pos, bg)#0
-    predef setBulletFormat(ch, colour)#0
 end

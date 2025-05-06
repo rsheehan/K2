@@ -391,9 +391,4 @@ export def fbTitleArea(title, left, top, height, fg,  bg)#0
     putc($0E)
 end
 
-export def setBulletFormat(ch, colour)#0
-    bulletChar = ch
-    bulletColour = colour
-end
-
 done

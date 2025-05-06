@@ -285,7 +285,7 @@ def bullet(linePos)#0
     // also a single colour
     bulletColour, linePos = optionHere(linePos, @colours, NUM_COLOURS)
     if bulletType < NUM_BULLET and bulletColour < NUM_COLOURS
-        setBulletFormat(bulletChars[bulletType], bulletColour)
+        fbBullet(bulletChars[bulletType], bulletColour)
     fin
 end
 
