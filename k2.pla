@@ -114,6 +114,38 @@ const ST_TITLE      = 1
 const ST_CONTENT    = 2
 const ST_NEWSLIDE   = 3
 
+//
+// Justification
+//
+const LEFTJ     = 0
+const CENTREJ   = 1
+const RIGHTJ    = 2
+
+// Returns the left position where a justified text
+// area of width will start.
+// Takes into account whether there is a surrounding
+// box.
+// Remember that a box around the text will
+// take up one extra space on each side.
+// just: the type of justification
+// width: the width of the text
+// box: whether the text will be enclosed by a box
+def justifiedStart(just, width, box)#1
+    byte left
+
+    when just
+        is LEFTJ
+            left = box ?? 1 :: 0
+            break
+        is CENTREJ
+            left = (40 - width) / 2
+            break
+        is RIGHTJ
+            left = box ?? 39 - width :: 40 - width
+    wend
+    return left
+end
+
 // move over characters which should be ignored
 def ignore(linePos, ignored)#1 // ignored is a string of chars
     byte i

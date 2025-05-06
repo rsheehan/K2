@@ -31,12 +31,6 @@ import fbtext
     byte bulletChar
     byte bulletColour
     
-    //
-    // Justification
-    //
-    const LEFTJ     = 0
-    const CENTREJ   = 1
-    const RIGHTJ    = 2
 	//
 	// API
 	//
@@ -45,14 +39,12 @@ import fbtext
     predef fbPutc(c, fg, bg)#0
     predef fbPuts(text, fg, bg)#0
 	predef fbViewport(left, top, width, height, fg, bg)#0
-    predef justifiedStart(just, width, box)#1
     predef fbBox(left, top, width, height)#0
     predef fbTitleArea(title, left, top, height, fg,  bg)#0
     predef fbTrack(left, top, width)#0
     predef mouseTextOn#0, mouseTextOff#0
     predef fbPutf(string)#0
     predef fbBullet(c, colour)#0
-    predef fbFormattedLength(string)#1
     predef pokeChar(ch, pos, bg)#0
     predef setBulletFormat(ch, colour)#0
 end
