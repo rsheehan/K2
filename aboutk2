@@ -1,7 +1,7 @@
 #SLIDE: magenta/dark_blue
 #TITLE: centre, line, light_blue/black
 #CONTENT: line, white/black
-#BUILD: all
+#BUILD: point
 #BULLET: diamond, orange
 #-----------------------------------
 
@@ -9,8 +9,9 @@
 
 #-----------------------------------
 
-+ An Apple IIe/c presentation
-  program
+An Apple IIe/c presentation program
+
+  *{GREY2}(Press space to show points)
 
 + Displays *{MEDIUM_BLUE}multi**{GREEN}colou**{MAGENTA}red* text if an
   A2DVI or Video7 compatible board
@@ -19,16 +20,24 @@
 + Uses mousetext characters for
   boxes, bullets and _underlining_
 
+#BUILD: all
 #-----------------------------------
 
  User control
 
 #-----------------------------------
 
-+ Right arrow or spacebar for next
++ Right arrow "->" for next slide
+
++ Left arrow "<-" for previous
   slide
 
-+ Left arrow for previous slide
++ Spacebar will show successive
+  points - if build by points
+  enabled
+
++ If slide complete, spacebar moves
+  to next slide
 
 + Onscreen arrows indicate next and
   previous slides
@@ -83,6 +92,29 @@
 
   + e.g. *{WHITE}cross, magenta
 #BULLET: diamond, orange
+#BUILD: point
+#-----------------------------------
+
+ Content Styling
+
+#-----------------------------------
+
++ The content can be styled with
+
+  + *{purple}coloured* *{pink}text
+
+  + _underlining_
+
++ Bullets can be a variety of
+  mousetext characters
+
+  And in different colours
+
++ Content can be presented point by
+  point or all at once using the
+  *{white}#BUILD:* command
+#BULLET: diamond, orange
+#BUILD: all
 #-----------------------------------
 
  Slide layout
@@ -176,8 +208,8 @@ of 38x23 for your text.
 21
 22
 23
-#TITLE: centre
 #CONTENT: line, white/black
+#BUILD: point
 #-----------------------------------
 
  K2 Limitations
@@ -192,7 +224,7 @@ of 38x23 for your text.
     outlines are the same *{GREY2}(as here)
 
 + Underlines are only allowed if the
-  following line is _empty_ at that
+  following line is _*{AQUAMARINE}empty*_ at that
   location.
 
 + Underlines are in the colour of

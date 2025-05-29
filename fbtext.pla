@@ -357,6 +357,26 @@ export def fbPutf(string)#0
                     fin
                 fin
                 break
+            is '-'
+                if ^(string + i + 1) == '>'
+                    mouseTextOn
+                    putFormattedCharacter('U', x, y, colour, under)
+                    mouseTextOff
+                    i++
+                else
+                    putFormattedCharacter('-', x, y, colour, under)
+                fin
+                break
+            is '<'
+                if ^(string + i + 1) == '-'
+                    mouseTextOn
+                    putFormattedCharacter('H', x, y, colour, under)
+                    mouseTextOff
+                    i++
+                else
+                    putFormattedCharacter('<', x, y, colour, under)
+                fin
+                break
             otherwise
                 putFormattedCharacter(c, x, y, colour, under)
                 x++

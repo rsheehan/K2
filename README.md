@@ -1,5 +1,11 @@
 K2 an Apple IIe/c Presentation Program
 ======================================
+Quickstart
+----------
+Boot the K2.po disk and type `+k2 aboutk2` at the prompt.
+
+About
+-----
 K2 can be used to give presentations or talks using slides containing optional titles and points. The Apple II 40 column text screen with mousetext characters are used for the display.
 
 The slides are contained in a single text file. The format of the text file is described below.
@@ -11,7 +17,7 @@ Images are from the AppleWin emulator.
 
 Installing K2
 -------------
-K2 is written in [David Schmenk's PLASMA](https://github.com/dschmenk/PLASMA), which is the greatest thing to have happened to Apple II software development in the last 20 years. K2 has not been optimised, and parts could be rewritten in assembly to make the slide presentation faster. It works adequately at 1MHz but if you have an accelerator or emulator running faster than that I would recommend it.
+K2 is written in [David Schmenk's PLASMA](https://github.com/dschmenk/PLASMA) (which is wonderful). K2 has not been optimised, and parts could be rewritten in assembly to make the slide presentation faster. It works adequately at 1MHz but if you have an accelerator or emulator running faster than that I would recommend it.
 
 You can install PLASMA and compile the source in that environment if you desire.
 
@@ -21,11 +27,11 @@ How to use K2
 -------------
 1. Prepare the slide file. Use any Apple II program which can save a text file.
 2. At the command prompt type `+k2 slideFilename`
-3. Move through the slides with the **spacebar** or right arrow key.
+3. Move through the slides with the **spacebar** or right arrow key. (The **spacebar** is also used to show point by point - see below.)
 4. Move backwards through the slides with the left arrow key.
 5. Type "Q" to quit.
 
-The slides show arrows at bottom right and left hand corners indicating if there are next or previous slides.
+The slides show arrows at bottom right and left hand corners indicating if there are next or previous slides. These arrows only become visible when all points in a slide are showing.
 
 Text slide files
 ----------------
@@ -78,6 +84,8 @@ K2 counts the number of spaces on the line before the title text and duplicates 
 
 Bullet character names are: `diamond`, `cross`, `openapple`, `closedapple`, `checkmark`, `ellipsis`, `hyphen` and `arrow`.
 
+`#BUILD:` is the build command and has two possible values: `all` and `point`. If `all` is chosen all following slides until the next `#BUILD` command will each be presented by showing all of their points without further user interaction. If `point` is chosen then K2 will pause before each point in the slide. The user must press the **spacebar** to show the next point. If there are no more points in the slide the **spacebar** will progress to the next slide. So **spacebar** works differently from the right arrow key, which always moves directly to the next slide.
+
 Formatting in the Content area
 ------------------------------
 The content area can have additional formatting which applies to runs of text.
@@ -90,6 +98,9 @@ The content area can have additional formatting which applies to runs of text.
 
   * Automatic substitutions
     * Three dots `...` in the content area gets turned into the ellipsis character.
+    * `+` as the first non-blank character on a line gets turned into a bullet with the current mousetext character and colour.
+    * `->` gets turned into the mousetext right arrow.
+    * `<-` gets turned into the mousetext left arrow.
 
 ![image info](images/styling.png)
 

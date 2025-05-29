@@ -58,8 +58,8 @@ byte[t_title] titleInfo = 0, WHITE, BLACK, 0, 1, 1, 0
 
 byte[] commandText
 byte    = "SLIDE"       // 0
-byte    = "TITLE"    // 1
-byte    = "CONTENT"  // 2
+byte    = "TITLE"       // 1
+byte    = "CONTENT"     // 2
 byte    = "BUILD"       // 3
 byte    = "BULLET"      // 4
 
@@ -311,8 +311,6 @@ def prepareContent(screenLine)#0
     contentHeight = 24 - screenLine
     if contentInfo[cBoxOutline]
         contentHeight = contentHeight - 2
-    fin
-    if contentInfo[cBoxOutline]
         fbBox(0, screenLine, 38, contentHeight)
         if titleInfo[tBoxOutline]
             fbTrack(titleInfo[tleft], screenLine, titleInfo[tText])
@@ -370,16 +368,16 @@ def parseLine(lineStr, state, slide)#1
             if parseCommand(lineStr + 2)
                 state = ST_START
             else
-                if nextChar == '-'
+                if nextChar == '-' // either side of title area
                     when state
-                        is ST_START
+                        is ST_START // start of title area
                             state = ST_TITLE
                             titleInfo[tHeight] = 0
                             titleInfo[tText] = 0 // length byte
                             // start of a new slide
                             fbInit(slideInfo[sForeground], slideInfo[sBackground])
                             break
-                        is ST_TITLE
+                        is ST_TITLE // finished title area
                             state = ST_CONTENT
                             prepareContent(displayTitle()) // start showing slide
                             break
@@ -449,9 +447,41 @@ def restoreSlideParameters(slide)#0
     bulletColour    = this->slideBCol
 end
 
-def showSlide(refnum, slide)#1
+const CONTSLIDE = 0
+const QUITSLIDE = 'Q'
+const PREVSLIDE = $08 // left arrow
+const NEXTSLIDE = $15 // right arrow
+
+def commandInsideSlide(line)#1 // will handle moving when building slide by points
+    word linePos
+    linePos = ignore(line + 1, " ")
+    if ^linePos == '+' // found a new point
+        // wait here until the user does something
+        return userCommand()
+    fin
+    return CONTSLIDE
+end
+
+def readUntilNextSlide(refnum)#1 // return TRUE if no next slide
+    byte[81] line
+    word lineLo
+    byte lineHi
+
+    repeat
+        lineLo, lineHi = fileio:getMark(refnum)#2
+        line = fileio:read(refnum, @line + 1, 80)
+        if line <> 0 and ^(@line + 1) == '#'
+            fileio:setMark(refnum, lineLo, lineHi)
+            return FALSE
+        fin
+    until line == 0
+    return TRUE
+end
+
+def showSlide(refnum, slide)#2
     byte[81] line // should be big enough
     byte state
+    byte slideLeave // leaving this slide early
     word lineLo
     byte lineHi
 
@@ -468,14 +498,38 @@ def showSlide(refnum, slide)#1
         lineLo, lineHi = fileio:getMark(refnum)#2
         line = fileio:read(refnum, @line + 1, 80)
         if line
+
+            if state == ST_CONTENT and slideBuild
+                slideLeave = commandInsideSlide(@line)
+                when slideLeave
+                    is QUITSLIDE
+                        return QUITSLIDE, TRUE
+                    is NEXTSLIDE
+                        state = readUntilNextSlide(refnum)
+                        return NEXTSLIDE, state
+                    is PREVSLIDE
+                        if slide == 0
+                            fileio:setMark(refnum, lineLo, lineHi)
+                            continue
+                        fin
+                        return PREVSLIDE, FALSE
+                    is ' '
+                    is CONTSLIDE
+                        break
+                    otherwise
+                        fileio:setMark(refnum, lineLo, lineHi)
+                        continue
+                wend
+            fin
+
             state = parseLine(@line, state, slide)
             if state == ST_NEWSLIDE
                 fileio:setMark(refnum, lineLo, lineHi)
-                return FALSE
+                return CONTSLIDE, FALSE
             fin
         fin
     until line == 0
-    return TRUE
+    return CONTSLIDE, TRUE
 end
 
 def slideArrows(leftArrow, rightArrow)#0
@@ -493,27 +547,30 @@ end
 def slideShow(refnum)#0
     byte slide
     byte finished
+    byte slideLeave
     byte current
+    byte command
 
-    // finished = FALSE
     current = -1
     slide = 0
     while TRUE
+        slideLeave = CONTSLIDE
         if current <> slide
-            finished = showSlide(refnum, slide)
+            slideLeave, finished = showSlide(refnum, slide)
             slideArrows(slide > 0, not finished)
         fin
         current = slide
-        when userCommand()
-            is 'Q'
+        command = slideLeave ?? slideLeave :: userCommand()
+        when command
+            is QUITSLIDE
                 return
             is ' '
-            is $15
+            is NEXTSLIDE
                 if not finished
                     slide++
                 fin
                 break
-            is $08 // ctrl-H
+            is PREVSLIDE
                 if slide > 0
                     slide--
                 fin
@@ -538,8 +595,6 @@ def openK2file(name)#0
     fin
 end
 
-//ToDo: get file name from command line.
-// fileio:setpfx("present")
 memset(@slidePositions, -1, 100)
 file = argNext(argFirst)
 if ^file
