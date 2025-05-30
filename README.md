@@ -62,7 +62,7 @@ List of Commands and Values
 Command lines are prefixed with a `#` as _the first character in the line_.
 The currently available commands are:
 
-    #SLIDE:, #TITLE:, #-, #CONTENT:, #BULLET:
+    #SLIDE:, #TITLE:, #-, #CONTENT:, #BULLET:, #BUILD:
 
 `#SLIDE:` is the whole slide command and is followed by a foreground and a background colour separated by a `/`; e.g. `white/purple`. This sets the foreground and background colours for all slides following this command. Slide colours usually only apply to the edges of the slide outside of any title and content areas. In particular this sets the colour of any mousetext boxes surrounding titles and contents.
 
@@ -107,6 +107,11 @@ The content area can have additional formatting which applies to runs of text.
 Next slide
 ----------
 Slides start with title areas. Title areas can be empty in which case the slide only shows a content area. Any use of a `#` command ends the current slide.
+
+
+Themes
+------
+As command values stay active until they are explicitly altered you can create themes by setting values at the start of the slideshow.
 
 
 Works in monochrome

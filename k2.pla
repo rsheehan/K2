@@ -297,8 +297,8 @@ def displayTitle()#1
         titleInfo[tleft] = justifiedStart(titleInfo[tJust], titleInfo[tText], titleInfo[tBoxOutline])
         if titleInfo[tBoxOutline]
             fbBox(titleInfo[tleft] - titleInfo[tBoxOutline], screenLine, titleInfo[tText], titleInfo[tHeight])
-            screenLine++
         fin
+        screenLine++
         fbTitleArea(@titleInfo[tText], titleInfo[tleft], screenLine, titleInfo[tHeight], titleInfo[tForeground], titleInfo[tBackground])
         screenLine = screenLine + titleInfo[tHeight]
     fin
@@ -308,7 +308,12 @@ end
 def prepareContent(screenLine)#0
     byte contentHeight
 
-    contentHeight = 24 - screenLine
+    if titleInfo[tText] and not contentInfo[cBoxOutline]
+        screenLine++
+        contentHeight = 24 - screenLine - 1
+    else
+        contentHeight = 24 - screenLine
+    fin
     if contentInfo[cBoxOutline]
         contentHeight = contentHeight - 2
         fbBox(0, screenLine, 38, contentHeight)

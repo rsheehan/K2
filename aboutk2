@@ -3,195 +3,196 @@
 #CONTENT: line, white/black
 #BUILD: point
 #BULLET: diamond, orange
-#-----------------------------------
+#------------------------------------
 
  What is K2?
 
-#-----------------------------------
+#------------------------------------
 
-An Apple IIe/c presentation program
+ An Apple IIe/c presentation program
 
-  *{GREY2}(Press space to show points)
+   *{GREY2}(Press space to show points)
 
-+ Displays *{MEDIUM_BLUE}multi**{GREEN}colou**{MAGENTA}red* text if an
-  A2DVI or Video7 compatible board
-  provides the output
+ + Displays *{MEDIUM_BLUE}multi**{GREEN}colou**{MAGENTA}red* text if an
+   A2DVI or Video7 compatible board
+   provides the output
 
-+ Uses mousetext characters for
-  boxes, bullets and _underlining_
+ + Uses mousetext characters for
+   boxes, bullets and _underlining_
 
 #BUILD: all
-#-----------------------------------
+#------------------------------------
 
  User control
 
-#-----------------------------------
+#------------------------------------
 
-+ Right arrow "->" for next slide
+ + Right arrow "->" for next slide
 
-+ Left arrow "<-" for previous
-  slide
+ + Left arrow "<-" for previous
+   slide
 
-+ Spacebar will show successive
-  points - if build by points
-  enabled
+ + Spacebar will show successive
+   points - if build by points
+   enabled
 
-+ If slide complete, spacebar moves
-  to next slide
+ + If the slide is complete, spacebar
+   moves to the next slide
 
-+ Onscreen arrows indicate next and
-  previous slides
+ + Onscreen arrows indicate next and
+   previous slides
 
-+ "Q" to quit
-#TITLE: left
+ + "Q" to quit
+#TITLE: left, none
 #CONTENT: yellow/black
-#-----------------------------------
+#------------------------------------
 
  Slide styling
 
-#-----------------------------------
+#------------------------------------
 
-+ Styling is determined by ...
+ + Styling is determined by ...
 
-  + commands, starting with *{WHITE}#
+   + commands, starting with *{WHITE}#
 
-+ Commands include
+ + Commands include
 
-  + Slide foreground and background
-    colours e.g. *{white}#SLIDE: white/black
+   + Slide foreground and background
+     colours e.g. *{white}#SLIDE: white/black
 
-  + Title justification, border and
-    colours *{white}#TITLE: centre, line,
-                    *{white}light\_blue/black
+   + Title justification, border and
+     colours *{white}#TITLE: centre, line,
+                     *{white}light\_blue/black
 
-  + Content border and colours
-    *{white}#CONTENT: none, grey1/grey2
+   + Content border and colours
+     *{white}#CONTENT: none, grey1/grey2
 
-#TITLE: centre
 #BULLET: cross, magenta
-#-----------------------------------
+#------------------------------------
 
  Commands
 
-#-----------------------------------
+#------------------------------------
 
-+ foreground/background colours
-  any *{WHITE}combination* of *{WHITE}colours* (later)
+ + foreground/background colours
+   any *{WHITE}combination* of *{WHITE}colours* (later)
 
-  + applies to slide, title, content
+   + applies to slide, title, content
 
-+ title justification
+ + title justification
 
-  + *{WHITE}left, centre, right
+   + *{WHITE}left, centre, right
 
-+ title and contents outline
+ + title and contents outline
 
-  + *{WHITE}line, none
+   + *{WHITE}line, none
 
-+ bullet shapes and colours
+ + bullet shapes and colours
 
-  + e.g. *{WHITE}cross, magenta
+   + e.g. *{WHITE}cross, magenta
 #BULLET: diamond, orange
 #BUILD: point
-#-----------------------------------
+#------------------------------------
 
- Content Styling
+ Content Styling and Themes
 
-#-----------------------------------
+#------------------------------------
 
-+ The content can be styled with
+ + The content can be styled with
 
-  + *{purple}coloured* *{pink}text
+   + *{purple}coloured* *{pink}text
 
-  + _underlining_
+   + _underlining_
 
-+ Bullets can be a variety of
-  mousetext characters
+ + Bullets can be a variety of
+   mousetext characters
 
-  And in different colours
+   And in different colours
 
-+ Content can be presented point by
-  point or all at once using the
-  *{white}#BUILD:* command
+ + Content can be presented point by
+   point or all at once using the
+   *{white}#BUILD:* command
+
+ + It is easy to have themes
 #BULLET: diamond, orange
 #BUILD: all
-#-----------------------------------
+#------------------------------------
 
  Slide layout
 
-#-----------------------------------
+#------------------------------------
 
-+ Layout is determined by ...
+ + Layout is determined by ...
 
-  + spacing you include in the text
+   + spacing you include in the text
 
-  + this way the text source
-    document is largely WYSIWYG
+   + this way the text source
+     document is largely WYSIWYG
 
- the next slide shows the _source_ of
-            this one
+  the next slide shows the _source_ of
+             this one
 
 #SLIDE: white/black
 #CONTENT: none, white/black
-#-----------------------------------
-#-----------------------------------
-\#-----------------------------------
+#------------------------------------
+#------------------------------------
+\#------------------------------------
 
  Slide layout
 
-\#-----------------------------------
+\#------------------------------------
 
-\+ Layout is determined by \...
+ \+ Layout is determined by \...
 
-  \+ spacing you include in the text
+   \+ spacing you include in the text
 
-  \+ this way the text source
-    document is largely WYSIWYG
+   \+ this way the text source
+     document is largely WYSIWYG
 
- the next slide shows the \_source\_ of
-            this one
+  the next slide shows the \_source\_ of
+             this one
 
 #SLIDE: magenta/dark_blue
-#CONTENT: line
-#-----------------------------------
+#------------------------------------
 
  Available Colours
 
-#-----------------------------------
+#------------------------------------
 
-*{magenta}Magenta
-*{dark_blue}Dark blue
-*{purple}Purple
-*{dark_green}Dark green
-*{grey1}Grey1
-*{medium_blue}Medium blue
-*{light_blue}Light blue
-*{brown}Brown
-*{orange}Orange
-*{grey2}Grey2
-*{pink}Pink
-*{green}Green
-*{yellow}Yellow
-*{aquamarine}Aquamarine
-*{white}White (and of course black)
+ *{magenta}Magenta
+ *{dark_blue}Dark blue
+ *{purple}Purple
+ *{dark_green}Dark green
+ *{grey1}Grey1
+ *{medium_blue}Medium blue
+ *{light_blue}Light blue
+ *{brown}Brown
+ *{orange}Orange
+ *{grey2}Grey2
+ *{pink}Pink
+ *{green}Green
+ *{yellow}Yellow
+ *{aquamarine}Aquamarine
+ *{white}White (and of course black)
 
-#-----------------------------------
-#-----------------------------------
+#CONTENT: line
+#------------------------------------
+#------------------------------------
 
-+ You can have slides without titles
-  if you need more room for your
-  points.
+ + You can have slides without titles
+   if you need more room for your
+   points.
 
 #CONTENT: none, yellow/dark_blue
-#-----------------------------------
-#-----------------------------------
-This is a slide with no box around
-the content.
+#------------------------------------
+#------------------------------------
+This is a slide with no box around the
+content.
 
-12345678901234567890123456789012345678
+1234567890123456789012345678901234567890
 
 As you can see this gives you an area
-of 38x23 for your text.
+of 40x23 for your text.
 
  9
 10
@@ -210,31 +211,29 @@ of 38x23 for your text.
 23
 #CONTENT: line, white/black
 #BUILD: point
-#-----------------------------------
+#------------------------------------
 
  K2 Limitations
 
-#-----------------------------------
+#------------------------------------
 
-+ The box *{GREEN}colours* are determined by
-  the initial *{MAGENTA}foreground* and
-  *{DARK_BLUE}background* colours ...
+ + The box *{GREEN}colours* are determined by
+   the initial *{MAGENTA}foreground* and
+   *{DARK_BLUE}background* colours ...
 
-  + so the title and content box
-    outlines are the same *{GREY2}(as here)
+   + so the title and content box
+     outlines are the same *{GREY2}(as here)
 
-+ Underlines are only allowed if the
-  following line is _*{AQUAMARINE}empty*_ at that
-  location.
+ + Underlines are only allowed if the
+   following line is _*{AQUAMARINE}empty*_ at that
+   location.
 
-+ Underlines are in the colour of
-  the content foreground even if the
-  underlined text is a _*{YELLOW}different_
-  colour.
-#-----------------------------------
-#-----------------------------------
-
-
+ + Underlines are in the colour of
+   the content foreground even if the
+   underlined text is a _*{YELLOW}different_
+   colour.
+#------------------------------------
+#------------------------------------
 
 
 
@@ -242,4 +241,6 @@ of 38x23 for your text.
 
 
 
-              *{ORANGE}THE END
+
+
+               *{ORANGE}THE END

@@ -80,7 +80,6 @@ export def fbViewport(left, top, width, height, fg, bg)#0
     byte colourByte
     word colourWord
 
-    conio:viewport(left, top, width, height)
     colourByte = fg << 4 | bg
 	conio:viewport(left, top, width, height)
     colourWord = colourByte << 8 | colourByte
@@ -305,7 +304,7 @@ export def fbPutf(string)#0
     byte under
     byte colour
 
-    puts(" ") // always indented
+    // puts(" ") // always indented
 
 	x = ^CURSH
 	y = ^CURSV - ^WNDTOP
@@ -377,6 +376,10 @@ export def fbPutf(string)#0
                     putFormattedCharacter('<', x, y, colour, under)
                 fin
                 break
+            is $0D
+                if x == ^WNDWIDTH
+                    break
+                fin
             otherwise
                 putFormattedCharacter(c, x, y, colour, under)
                 x++
